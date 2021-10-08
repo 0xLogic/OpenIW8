@@ -1,0 +1,740 @@
+/*
+==============
+std::_Ref_count_base::~_Ref_count_base
+==============
+*/
+
+void __fastcall std::_Ref_count_base::~_Ref_count_base(std::_Ref_count_base *this)
+{
+  ??1_Ref_count_base@std@@UEAA@XZ(this);
+}
+
+/*
+==============
+std::shared_ptr<Concurrency::details::_Task_impl_base>::~shared_ptr<Concurrency::details::_Task_impl_base>
+==============
+*/
+
+void __fastcall std::shared_ptr<Concurrency::details::_Task_impl_base>::~shared_ptr<Concurrency::details::_Task_impl_base>(std::shared_ptr<Concurrency::details::_Task_impl_base> *this)
+{
+  ??1?$shared_ptr@U_Task_impl_base@details@Concurrency@@@std@@QEAA@XZ(this);
+}
+
+/*
+==============
+std::shared_ptr<xbox::services::multiplayer::multiplayer_session_properties>::~shared_ptr<xbox::services::multiplayer::multiplayer_session_properties>
+==============
+*/
+
+void __fastcall std::shared_ptr<xbox::services::multiplayer::multiplayer_session_properties>::~shared_ptr<xbox::services::multiplayer::multiplayer_session_properties>(std::shared_ptr<xbox::services::multiplayer::multiplayer_session_properties> *this)
+{
+  ??1?$shared_ptr@Vmultiplayer_session_properties@multiplayer@services@xbox@@@std@@QEAA@XZ(this);
+}
+
+/*
+==============
+std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session>::~shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session>
+==============
+*/
+
+void __fastcall std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session>::~shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session>(std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> *this)
+{
+  ??1?$shared_ptr@Vmultiplayer_lobby_session@manager@multiplayer@services@xbox@@@std@@QEAA@XZ(this);
+}
+
+/*
+==============
+std::_Ref_count_base::_Get_deleter
+==============
+*/
+
+void *__fastcall std::_Ref_count_base::_Get_deleter(std::_Ref_count_base *this, const type_info *__formal)
+{
+  return ?_Get_deleter@_Ref_count_base@std@@UEBAPEAXAEBVtype_info@@@Z(this, __formal);
+}
+
+/*
+==============
+std::shared_ptr<Concurrency::details::_ExceptionHolder>::~shared_ptr<Concurrency::details::_ExceptionHolder>
+==============
+*/
+
+void __fastcall std::shared_ptr<Concurrency::details::_ExceptionHolder>::~shared_ptr<Concurrency::details::_ExceptionHolder>(std::shared_ptr<Concurrency::details::_ExceptionHolder> *this)
+{
+  ??1?$shared_ptr@U_ExceptionHolder@details@Concurrency@@@std@@QEAA@XZ(this);
+}
+
+/*
+==============
+std::shared_ptr<Concurrency::scheduler_interface>::~shared_ptr<Concurrency::scheduler_interface>
+==============
+*/
+
+void __fastcall std::shared_ptr<Concurrency::scheduler_interface>::~shared_ptr<Concurrency::scheduler_interface>(std::shared_ptr<Concurrency::scheduler_interface> *this)
+{
+  ??1?$shared_ptr@Uscheduler_interface@Concurrency@@@std@@QEAA@XZ(this);
+}
+
+/*
+==============
+std::weak_ptr<Concurrency::details::_Task_impl_base>::~weak_ptr<Concurrency::details::_Task_impl_base>
+==============
+*/
+
+void __fastcall std::weak_ptr<Concurrency::details::_Task_impl_base>::~weak_ptr<Concurrency::details::_Task_impl_base>(std::weak_ptr<Concurrency::details::_Task_impl_base> *this)
+{
+  ??1?$weak_ptr@U_Task_impl_base@details@Concurrency@@@std@@QEAA@XZ(this);
+}
+
+/*
+==============
+std::shared_ptr<xbox::services::multiplayer::multiplayer_session>::~shared_ptr<xbox::services::multiplayer::multiplayer_session>
+==============
+*/
+
+void __fastcall std::shared_ptr<xbox::services::multiplayer::multiplayer_session>::~shared_ptr<xbox::services::multiplayer::multiplayer_session>(std::shared_ptr<xbox::services::multiplayer::multiplayer_session> *this)
+{
+  ??1?$shared_ptr@Vmultiplayer_session@multiplayer@services@xbox@@@std@@QEAA@XZ(this);
+}
+
+/*
+==============
+std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager>::~shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager>
+==============
+*/
+
+void __fastcall std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager>::~shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager>(std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> *this)
+{
+  ??1?$shared_ptr@Vmultiplayer_manager@manager@multiplayer@services@xbox@@@std@@QEAA@XZ(this);
+}
+
+/*
+==============
+std::operator!=<xbox::services::multiplayer::manager::multiplayer_lobby_session>
+==============
+*/
+
+bool __fastcall std::operator!=<xbox::services::multiplayer::manager::multiplayer_lobby_session>(const std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> *_Left, __int16 __formal)
+{
+  return ??$?9Vmultiplayer_lobby_session@manager@multiplayer@services@xbox@@@std@@YA_NAEBV?$shared_ptr@Vmultiplayer_lobby_session@manager@multiplayer@services@xbox@@@0@$$T@Z(_Left, __formal);
+}
+
+/*
+==============
+std::operator!=<Concurrency::details::_Task_impl_base>
+==============
+*/
+
+bool __fastcall std::operator!=<Concurrency::details::_Task_impl_base>(const std::shared_ptr<Concurrency::details::_Task_impl_base> *_Left, __int16 __formal)
+{
+  return ??$?9U_Task_impl_base@details@Concurrency@@@std@@YA_NAEBV?$shared_ptr@U_Task_impl_base@details@Concurrency@@@0@$$T@Z(_Left, __formal);
+}
+
+/*
+==============
+std::shared_ptr<Concurrency::details::_ExceptionHolder>::operator-><Concurrency::details::_ExceptionHolder,0>
+==============
+*/
+
+Concurrency::details::_ExceptionHolder *__fastcall std::shared_ptr<Concurrency::details::_ExceptionHolder>::operator-><Concurrency::details::_ExceptionHolder,0>(std::shared_ptr<Concurrency::details::_ExceptionHolder> *this)
+{
+  return ??$?CU_ExceptionHolder@details@Concurrency@@$0A@@?$shared_ptr@U_ExceptionHolder@details@Concurrency@@@std@@QEBAPEAU_ExceptionHolder@details@Concurrency@@XZ(this);
+}
+
+/*
+==============
+std::_Ref_count_obj<Concurrency::details::_ExceptionHolder>::_Delete_this
+==============
+*/
+
+void __fastcall std::_Ref_count_obj<Concurrency::details::_ExceptionHolder>::_Delete_this(std::_Ref_count_obj<Concurrency::details::_ExceptionHolder> *this)
+{
+  ?_Delete_this@?$_Ref_count_obj@U_ExceptionHolder@details@Concurrency@@@std@@EEAAXXZ(this);
+}
+
+/*
+==============
+std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>::~shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>
+==============
+*/
+
+void __fastcall std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>::~shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>(std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> *this)
+{
+  ??1?$shared_ptr@Vmultiplayer_member@manager@multiplayer@services@xbox@@@std@@QEAA@XZ(this);
+}
+
+/*
+==============
+std::operator!=<xbox::services::multiplayer::manager::multiplayer_game_session>
+==============
+*/
+
+bool __fastcall std::operator!=<xbox::services::multiplayer::manager::multiplayer_game_session>(const std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> *_Left, __int16 __formal)
+{
+  return ??$?9Vmultiplayer_game_session@manager@multiplayer@services@xbox@@@std@@YA_NAEBV?$shared_ptr@Vmultiplayer_game_session@manager@multiplayer@services@xbox@@@0@$$T@Z(_Left, __formal);
+}
+
+/*
+==============
+std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session>::~shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session>
+==============
+*/
+
+void __fastcall std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session>::~shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session>(std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> *this)
+{
+  ??1?$shared_ptr@Vmultiplayer_game_session@manager@multiplayer@services@xbox@@@std@@QEAA@XZ(this);
+}
+
+/*
+==============
+std::_Ref_count_obj<Concurrency::details::_ExceptionHolder>::_Destroy
+==============
+*/
+
+void __fastcall std::_Ref_count_obj<Concurrency::details::_ExceptionHolder>::_Destroy(std::_Ref_count_obj<Concurrency::details::_ExceptionHolder> *this)
+{
+  ?_Destroy@?$_Ref_count_obj@U_ExceptionHolder@details@Concurrency@@@std@@EEAAXXZ(this);
+}
+
+/*
+==============
+std::_Enable_shared_from_this1<Concurrency::details::_ExceptionHolder,Concurrency::details::_ExceptionHolder>
+==============
+*/
+
+void __fastcall std::_Enable_shared_from_this1<Concurrency::details::_ExceptionHolder,Concurrency::details::_ExceptionHolder>(const std::shared_ptr<Concurrency::details::_ExceptionHolder> *__formal, Concurrency::details::_ExceptionHolder *a2, std::integral_constant<bool,0> a3)
+{
+  ??$_Enable_shared_from_this1@U_ExceptionHolder@details@Concurrency@@U123@@std@@YAXAEBV?$shared_ptr@U_ExceptionHolder@details@Concurrency@@@0@PEAU_ExceptionHolder@details@Concurrency@@U?$integral_constant@_N$0A@@0@@Z(__formal, a2, a3);
+}
+
+/*
+==============
+std::_Enable_shared_from_this<Concurrency::details::_ExceptionHolder,Concurrency::details::_ExceptionHolder>
+==============
+*/
+
+void __fastcall std::_Enable_shared_from_this<Concurrency::details::_ExceptionHolder,Concurrency::details::_ExceptionHolder>(const std::shared_ptr<Concurrency::details::_ExceptionHolder> *_This, Concurrency::details::_ExceptionHolder *_Ptr)
+{
+  ??$_Enable_shared_from_this@U_ExceptionHolder@details@Concurrency@@U123@@std@@YAXAEBV?$shared_ptr@U_ExceptionHolder@details@Concurrency@@@0@PEAU_ExceptionHolder@details@Concurrency@@@Z(_This, _Ptr);
+}
+
+/*
+==============
+std::_Ref_count_base::~_Ref_count_base
+==============
+*/
+void std::_Ref_count_base::~_Ref_count_base(std::_Ref_count_base *this)
+{
+  ;
+}
+
+/*
+==============
+std::_Ref_count_base::_Get_deleter
+==============
+*/
+void *std::_Ref_count_base::_Get_deleter(std::_Ref_count_base *this, const type_info *__formal)
+{
+  return 0i64;
+}
+
+/*
+==============
+?__abi_Windows_Foundation_Collections_?$IVector@PE$AAVInventoryItem@Marketplace@Services@Xbox@Microsoft@@____abi_IndexOf@?Q?$IVector@PE$AAVInventoryItem@Marketplace@Services@Xbox@Microsoft@@@Collections@Foundation@Windows@@?$Vector@PE$AAVInventoryItem@Marketplace@Services@Xbox@Microsoft@@U?$equal_to@PE$AAVInventoryItem@Marketplace@Services@Xbox@Microsoft@@@std@@$00@2Platform@@UE$AAAJPE$AAVInventoryItem@Marketplace@Services@Xbox@Microsoft@@PEAIPEA_N@Z
+==============
+*/
+__int64 ___abi_Windows_Foundation_Collections___IVector_PE_AAVInventoryItem_Marketplace_Services_Xbox_Microsoft______abi_IndexOf__Q__IVector_PE_AAVInventoryItem_Marketplace_Services_Xbox_Microsoft___Collections_Foundation_Windows____Vector_PE_AAVInventoryItem_Marketplace_Services_Xbox_Microsoft__U__equal_to_PE_AAVInventoryItem_Marketplace_Services_Xbox_Microsoft___std___00_2Platform__UE_AAAJPE_AAVInventoryItem_Marketplace_Services_Xbox_Microsoft__PEAIPEA_N_Z(Platform::Collections::Vector<Microsoft::Xbox::Services::Marketplace::InventoryItem _,std::equal_to<Microsoft::Xbox::Services::Marketplace::InventoryItem _>,1> *this, Microsoft::Xbox::Services::Marketplace::InventoryItem *__param0, unsigned int *__param1, bool *__abi_returnValue)
+{
+  if ( this->__abi_disposed )
+  {
+    __abi_WinRTraiseObjectDisposedException();
+    __debugbreak();
+  }
+  *__abi_returnValue = 0;
+  *__param1 = 0;
+  *__abi_returnValue = Platform::Collections::Details::VectorIndexOf<Microsoft::Xbox::Services::Marketplace::InventoryItem __gc *,std::equal_to<Microsoft::Xbox::Services::Marketplace::InventoryItem __gc *>>(this->m_vec._Ptr, __param0, __param1);
+  return 0i64;
+}
+
+/*
+==============
+?__abi_Windows_Foundation_Collections_?$IVectorView@PE$AAVInventoryItem@Marketplace@Services@Xbox@Microsoft@@____abi_IndexOf@?Q?$IVectorView@PE$AAVInventoryItem@Marketplace@Services@Xbox@Microsoft@@@Collections@Foundation@Windows@@?$VectorView@PE$AAVInventoryItem@Marketplace@Services@Xbox@Microsoft@@U?$equal_to@PE$AAVInventoryItem@Marketplace@Services@Xbox@Microsoft@@@std@@$00@2Platform@@UE$AAAJPE$AAVInventoryItem@Marketplace@Services@Xbox@Microsoft@@PEAIPEA_N@Z
+==============
+*/
+__int64 ___abi_Windows_Foundation_Collections___IVectorView_PE_AAVInventoryItem_Marketplace_Services_Xbox_Microsoft______abi_IndexOf__Q__IVectorView_PE_AAVInventoryItem_Marketplace_Services_Xbox_Microsoft___Collections_Foundation_Windows____VectorView_PE_AAVInventoryItem_Marketplace_Services_Xbox_Microsoft__U__equal_to_PE_AAVInventoryItem_Marketplace_Services_Xbox_Microsoft___std___00_2Platform__UE_AAAJPE_AAVInventoryItem_Marketplace_Services_Xbox_Microsoft__PEAIPEA_N_Z(Platform::Collections::VectorView<Microsoft::Xbox::Services::Marketplace::InventoryItem _,std::equal_to<Microsoft::Xbox::Services::Marketplace::InventoryItem _>,1> *this, Microsoft::Xbox::Services::Marketplace::InventoryItem *__param0, unsigned int *__param1, bool *__abi_returnValue)
+{
+  void *Exception; 
+  __int64 pExceptionObject[3]; 
+  const volatile Platform::Object *v7; 
+
+  pExceptionObject[1] = -2i64;
+  if ( this->__abi_disposed )
+  {
+    __abi_WinRTraiseObjectDisposedException();
+    __debugbreak();
+  }
+  *__abi_returnValue = 0;
+  *__param1 = 0;
+  if ( *this->m_ctr._Ptr != this->m_good_ctr )
+  {
+    Exception = Platform::Details::Heap::AllocateException(0x68ui64, 0x90ui64);
+    v7 = (const volatile Platform::Object *)Platform::ChangedStateException::ChangedStateException(Exception);
+    pExceptionObject[0] = (__int64)__abi_winrt_ptr_ctor(v7);
+    CxxThrowException_0(pExceptionObject, (_ThrowInfo *)&TI11PE_AAVChangedStateException_Platform__);
+  }
+  *__abi_returnValue = Platform::Collections::Details::VectorIndexOf<Microsoft::Xbox::Services::Marketplace::InventoryItem __gc *,std::equal_to<Microsoft::Xbox::Services::Marketplace::InventoryItem __gc *>>(this->m_vec._Ptr, __param0, __param1);
+  return 0i64;
+}
+
+/*
+==============
+?__abi_Windows_Foundation_Collections_?$IVector@PE$AAUIDownloadableContentPackage@Deployment@Management@Xbox@Windows@@____abi_IndexOf@?Q?$IVector@PE$AAUIDownloadableContentPackage@Deployment@Management@Xbox@Windows@@@Collections@Foundation@Windows@@?$Vector@PE$AAUIDownloadableContentPackage@Deployment@Management@Xbox@Windows@@U?$equal_to@PE$AAUIDownloadableContentPackage@Deployment@Management@Xbox@Windows@@@std@@$00@2Platform@@UE$AAAJPE$AAUIDownloadableContentPackage@Deployment@Management@Xbox@4@PEAIPEA_N@Z
+==============
+*/
+__int64 ___abi_Windows_Foundation_Collections___IVector_PE_AAUIDownloadableContentPackage_Deployment_Management_Xbox_Windows______abi_IndexOf__Q__IVector_PE_AAUIDownloadableContentPackage_Deployment_Management_Xbox_Windows___Collections_Foundation_Windows____Vector_PE_AAUIDownloadableContentPackage_Deployment_Management_Xbox_Windows__U__equal_to_PE_AAUIDownloadableContentPackage_Deployment_Management_Xbox_Windows___std___00_2Platform__UE_AAAJPE_AAUIDownloadableContentPackage_Deployment_Management_Xbox_4_PEAIPEA_N_Z(Platform::Collections::Vector<Windows::Xbox::Management::Deployment::IDownloadableContentPackage _,std::equal_to<Windows::Xbox::Management::Deployment::IDownloadableContentPackage _>,1> *this, Windows::Xbox::Management::Deployment::IDownloadableContentPackage *__param0, unsigned int *__param1, bool *__abi_returnValue)
+{
+  if ( this->__abi_disposed )
+  {
+    __abi_WinRTraiseObjectDisposedException();
+    __debugbreak();
+  }
+  *__abi_returnValue = 0;
+  *__param1 = 0;
+  *__abi_returnValue = Platform::Collections::Details::VectorIndexOf<Windows::Xbox::Management::Deployment::IDownloadableContentPackage __gc *,std::equal_to<Windows::Xbox::Management::Deployment::IDownloadableContentPackage __gc *>>(this->m_vec._Ptr, __param0, __param1);
+  return 0i64;
+}
+
+/*
+==============
+?__abi_Windows_Foundation_Collections_?$IVectorView@PE$AAUIDownloadableContentPackage@Deployment@Management@Xbox@Windows@@____abi_IndexOf@?Q?$IVectorView@PE$AAUIDownloadableContentPackage@Deployment@Management@Xbox@Windows@@@Collections@Foundation@Windows@@?$VectorView@PE$AAUIDownloadableContentPackage@Deployment@Management@Xbox@Windows@@U?$equal_to@PE$AAUIDownloadableContentPackage@Deployment@Management@Xbox@Windows@@@std@@$00@2Platform@@UE$AAAJPE$AAUIDownloadableContentPackage@Deployment@Management@Xbox@4@PEAIPEA_N@Z
+==============
+*/
+__int64 ___abi_Windows_Foundation_Collections___IVectorView_PE_AAUIDownloadableContentPackage_Deployment_Management_Xbox_Windows______abi_IndexOf__Q__IVectorView_PE_AAUIDownloadableContentPackage_Deployment_Management_Xbox_Windows___Collections_Foundation_Windows____VectorView_PE_AAUIDownloadableContentPackage_Deployment_Management_Xbox_Windows__U__equal_to_PE_AAUIDownloadableContentPackage_Deployment_Management_Xbox_Windows___std___00_2Platform__UE_AAAJPE_AAUIDownloadableContentPackage_Deployment_Management_Xbox_4_PEAIPEA_N_Z(Platform::Collections::VectorView<Windows::Xbox::Management::Deployment::IDownloadableContentPackage _,std::equal_to<Windows::Xbox::Management::Deployment::IDownloadableContentPackage _>,1> *this, Windows::Xbox::Management::Deployment::IDownloadableContentPackage *__param0, unsigned int *__param1, bool *__abi_returnValue)
+{
+  void *Exception; 
+  __int64 pExceptionObject[3]; 
+  const volatile Platform::Object *v7; 
+
+  pExceptionObject[1] = -2i64;
+  if ( this->__abi_disposed )
+  {
+    __abi_WinRTraiseObjectDisposedException();
+    __debugbreak();
+  }
+  *__abi_returnValue = 0;
+  *__param1 = 0;
+  if ( *this->m_ctr._Ptr != this->m_good_ctr )
+  {
+    Exception = Platform::Details::Heap::AllocateException(0x68ui64, 0x90ui64);
+    v7 = (const volatile Platform::Object *)Platform::ChangedStateException::ChangedStateException(Exception);
+    pExceptionObject[0] = (__int64)__abi_winrt_ptr_ctor(v7);
+    CxxThrowException_0(pExceptionObject, (_ThrowInfo *)&TI11PE_AAVChangedStateException_Platform__);
+  }
+  *__abi_returnValue = Platform::Collections::Details::VectorIndexOf<Windows::Xbox::Management::Deployment::IDownloadableContentPackage __gc *,std::equal_to<Windows::Xbox::Management::Deployment::IDownloadableContentPackage __gc *>>(this->m_vec._Ptr, __param0, __param1);
+  return 0i64;
+}
+
+/*
+==============
+?__abi_Windows_Foundation_Collections_?$IVector@PE$AAVString@Platform@@____abi_IndexOf@?Q?$IVector@PE$AAVString@Platform@@@Collections@Foundation@Windows@@?$Vector@PE$AAVString@Platform@@U?$equal_to@PE$AAVString@Platform@@@std@@$00@2Platform@@UE$AAAJPE$AAVString@6@PEAIPEA_N@Z
+==============
+*/
+__int64 ___abi_Windows_Foundation_Collections___IVector_PE_AAVString_Platform______abi_IndexOf__Q__IVector_PE_AAVString_Platform___Collections_Foundation_Windows____Vector_PE_AAVString_Platform__U__equal_to_PE_AAVString_Platform___std___00_2Platform__UE_AAAJPE_AAVString_6_PEAIPEA_N_Z(Platform::Collections::Vector<Platform::String _,std::equal_to<Platform::String _>,1> *this, Platform::String *__param0, unsigned int *__param1, bool *__abi_returnValue)
+{
+  if ( this->__abi_disposed )
+  {
+    __abi_WinRTraiseObjectDisposedException();
+    __debugbreak();
+  }
+  *__abi_returnValue = 0;
+  *__param1 = 0;
+  *__abi_returnValue = Platform::Collections::Details::VectorIndexOf<Platform::String __gc *,std::equal_to<Platform::String __gc *>>(this->m_vec._Ptr, __param0, __param1);
+  return 0i64;
+}
+
+/*
+==============
+?__abi_Windows_Foundation_Collections_?$IVectorView@PE$AAVString@Platform@@____abi_IndexOf@?Q?$IVectorView@PE$AAVString@Platform@@@Collections@Foundation@Windows@@?$VectorView@PE$AAVString@Platform@@U?$equal_to@PE$AAVString@Platform@@@std@@$00@2Platform@@UE$AAAJPE$AAVString@6@PEAIPEA_N@Z
+==============
+*/
+__int64 ___abi_Windows_Foundation_Collections___IVectorView_PE_AAVString_Platform______abi_IndexOf__Q__IVectorView_PE_AAVString_Platform___Collections_Foundation_Windows____VectorView_PE_AAVString_Platform__U__equal_to_PE_AAVString_Platform___std___00_2Platform__UE_AAAJPE_AAVString_6_PEAIPEA_N_Z(Platform::Collections::VectorView<Platform::String _,std::equal_to<Platform::String _>,1> *this, Platform::String *__param0, unsigned int *__param1, bool *__abi_returnValue)
+{
+  void *Exception; 
+  __int64 pExceptionObject[3]; 
+  const volatile Platform::Object *v7; 
+
+  pExceptionObject[1] = -2i64;
+  if ( this->__abi_disposed )
+  {
+    __abi_WinRTraiseObjectDisposedException();
+    __debugbreak();
+  }
+  *__abi_returnValue = 0;
+  *__param1 = 0;
+  if ( *this->m_ctr._Ptr != this->m_good_ctr )
+  {
+    Exception = Platform::Details::Heap::AllocateException(0x68ui64, 0x90ui64);
+    v7 = (const volatile Platform::Object *)Platform::ChangedStateException::ChangedStateException(Exception);
+    pExceptionObject[0] = (__int64)__abi_winrt_ptr_ctor(v7);
+    CxxThrowException_0(pExceptionObject, (_ThrowInfo *)&TI11PE_AAVChangedStateException_Platform__);
+  }
+  *__abi_returnValue = Platform::Collections::Details::VectorIndexOf<Platform::String __gc *,std::equal_to<Platform::String __gc *>>(this->m_vec._Ptr, __param0, __param1);
+  return 0i64;
+}
+
+/*
+==============
+std::operator!=<Concurrency::details::_Task_impl_base>
+==============
+*/
+bool std::operator!=<Concurrency::details::_Task_impl_base>(const std::shared_ptr<Concurrency::details::_Task_impl_base> *_Left, __int16 __formal)
+{
+  return _Left->_Ptr != NULL;
+}
+
+/*
+==============
+std::shared_ptr<Concurrency::details::_ExceptionHolder>::operator-><Concurrency::details::_ExceptionHolder,0>
+==============
+*/
+Concurrency::details::_ExceptionHolder *std::shared_ptr<Concurrency::details::_ExceptionHolder>::operator-><Concurrency::details::_ExceptionHolder,0>(std::shared_ptr<Concurrency::details::_ExceptionHolder> *this)
+{
+  return this->_Ptr;
+}
+
+/*
+==============
+std::_Enable_shared_from_this1<Concurrency::details::_ExceptionHolder,Concurrency::details::_ExceptionHolder>
+==============
+*/
+void std::_Enable_shared_from_this1<Concurrency::details::_ExceptionHolder,Concurrency::details::_ExceptionHolder>(const std::shared_ptr<Concurrency::details::_ExceptionHolder> *__formal, Concurrency::details::_ExceptionHolder *a2, std::integral_constant<bool,0> a3)
+{
+  ;
+}
+
+/*
+==============
+std::_Enable_shared_from_this<Concurrency::details::_ExceptionHolder,Concurrency::details::_ExceptionHolder>
+==============
+*/
+void std::_Enable_shared_from_this<Concurrency::details::_ExceptionHolder,Concurrency::details::_ExceptionHolder>(const std::shared_ptr<Concurrency::details::_ExceptionHolder> *_This, Concurrency::details::_ExceptionHolder *_Ptr)
+{
+  ;
+}
+
+/*
+==============
+std::shared_ptr<Concurrency::details::_ExceptionHolder>::~shared_ptr<Concurrency::details::_ExceptionHolder>
+==============
+*/
+void std::shared_ptr<Concurrency::details::_ExceptionHolder>::~shared_ptr<Concurrency::details::_ExceptionHolder>(std::shared_ptr<Concurrency::details::_ExceptionHolder> *this)
+{
+  std::_Ref_count_base *Rep; 
+
+  Rep = this->_Rep;
+  if ( Rep && _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Uses, 0xFFFFFFFF) == 1 )
+  {
+    Rep->_Destroy(Rep);
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Weaks, 0xFFFFFFFF) == 1 )
+      Rep->_Delete_this(Rep);
+  }
+}
+
+/*
+==============
+std::shared_ptr<Concurrency::details::_Task_impl_base>::~shared_ptr<Concurrency::details::_Task_impl_base>
+==============
+*/
+void std::shared_ptr<Concurrency::details::_Task_impl_base>::~shared_ptr<Concurrency::details::_Task_impl_base>(std::shared_ptr<Concurrency::details::_Task_impl_base> *this)
+{
+  std::_Ref_count_base *Rep; 
+
+  Rep = this->_Rep;
+  if ( Rep && _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Uses, 0xFFFFFFFF) == 1 )
+  {
+    Rep->_Destroy(Rep);
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Weaks, 0xFFFFFFFF) == 1 )
+      Rep->_Delete_this(Rep);
+  }
+}
+
+/*
+==============
+std::shared_ptr<Concurrency::scheduler_interface>::~shared_ptr<Concurrency::scheduler_interface>
+==============
+*/
+void std::shared_ptr<Concurrency::scheduler_interface>::~shared_ptr<Concurrency::scheduler_interface>(std::shared_ptr<Concurrency::scheduler_interface> *this)
+{
+  std::_Ref_count_base *Rep; 
+
+  Rep = this->_Rep;
+  if ( Rep && _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Uses, 0xFFFFFFFF) == 1 )
+  {
+    Rep->_Destroy(Rep);
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Weaks, 0xFFFFFFFF) == 1 )
+      Rep->_Delete_this(Rep);
+  }
+}
+
+/*
+==============
+std::weak_ptr<Concurrency::details::_Task_impl_base>::~weak_ptr<Concurrency::details::_Task_impl_base>
+==============
+*/
+void std::weak_ptr<Concurrency::details::_Task_impl_base>::~weak_ptr<Concurrency::details::_Task_impl_base>(std::weak_ptr<Concurrency::details::_Task_impl_base> *this)
+{
+  std::_Ref_count_base *Rep; 
+
+  Rep = this->_Rep;
+  if ( Rep )
+  {
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Weaks, 0xFFFFFFFF) == 1 )
+      Rep->_Delete_this(Rep);
+  }
+}
+
+/*
+==============
+std::_Ref_count_obj<Concurrency::details::_ExceptionHolder>::_Delete_this
+==============
+*/
+void std::_Ref_count_obj<Concurrency::details::_ExceptionHolder>::_Delete_this(std::_Ref_count_obj<Concurrency::details::_ExceptionHolder> *this)
+{
+  if ( this )
+    ((void (__fastcall *)(std::_Ref_count_obj<Concurrency::details::_ExceptionHolder> *, __int64))this->~_Ref_count_base)(this, 1i64);
+}
+
+/*
+==============
+std::_Ref_count_obj<Concurrency::details::_ExceptionHolder>::_Destroy
+==============
+*/
+void std::_Ref_count_obj<Concurrency::details::_ExceptionHolder>::_Destroy(std::_Ref_count_obj<Concurrency::details::_ExceptionHolder> *this)
+{
+  Concurrency::details::_ExceptionHolder::~_ExceptionHolder((Concurrency::details::_ExceptionHolder *)&this->_Storage);
+}
+
+/*
+==============
+std::shared_ptr<xbox::services::multiplayer::multiplayer_session>::~shared_ptr<xbox::services::multiplayer::multiplayer_session>
+==============
+*/
+void std::shared_ptr<xbox::services::multiplayer::multiplayer_session>::~shared_ptr<xbox::services::multiplayer::multiplayer_session>(std::shared_ptr<xbox::services::multiplayer::multiplayer_session> *this)
+{
+  std::_Ref_count_base *Rep; 
+
+  Rep = this->_Rep;
+  if ( Rep && _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Uses, 0xFFFFFFFF) == 1 )
+  {
+    Rep->_Destroy(Rep);
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Weaks, 0xFFFFFFFF) == 1 )
+      Rep->_Delete_this(Rep);
+  }
+}
+
+/*
+==============
+std::operator!=<xbox::services::multiplayer::manager::multiplayer_game_session>
+==============
+*/
+bool std::operator!=<xbox::services::multiplayer::manager::multiplayer_game_session>(const std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> *_Left, __int16 __formal)
+{
+  return _Left->_Ptr != NULL;
+}
+
+/*
+==============
+std::operator!=<xbox::services::multiplayer::manager::multiplayer_lobby_session>
+==============
+*/
+bool std::operator!=<xbox::services::multiplayer::manager::multiplayer_lobby_session>(const std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> *_Left, __int16 __formal)
+{
+  return _Left->_Ptr != NULL;
+}
+
+/*
+==============
+std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session>::~shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session>
+==============
+*/
+void std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session>::~shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session>(std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_game_session> *this)
+{
+  std::_Ref_count_base *Rep; 
+
+  Rep = this->_Rep;
+  if ( Rep && _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Uses, 0xFFFFFFFF) == 1 )
+  {
+    Rep->_Destroy(Rep);
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Weaks, 0xFFFFFFFF) == 1 )
+      Rep->_Delete_this(Rep);
+  }
+}
+
+/*
+==============
+std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session>::~shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session>
+==============
+*/
+void std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session>::~shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session>(std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_lobby_session> *this)
+{
+  std::_Ref_count_base *Rep; 
+
+  Rep = this->_Rep;
+  if ( Rep && _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Uses, 0xFFFFFFFF) == 1 )
+  {
+    Rep->_Destroy(Rep);
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Weaks, 0xFFFFFFFF) == 1 )
+      Rep->_Delete_this(Rep);
+  }
+}
+
+/*
+==============
+std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager>::~shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager>
+==============
+*/
+void std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager>::~shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager>(std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_manager> *this)
+{
+  std::_Ref_count_base *Rep; 
+
+  Rep = this->_Rep;
+  if ( Rep && _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Uses, 0xFFFFFFFF) == 1 )
+  {
+    Rep->_Destroy(Rep);
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Weaks, 0xFFFFFFFF) == 1 )
+      Rep->_Delete_this(Rep);
+  }
+}
+
+/*
+==============
+std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>::~shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>
+==============
+*/
+void std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>::~shared_ptr<xbox::services::multiplayer::manager::multiplayer_member>(std::shared_ptr<xbox::services::multiplayer::manager::multiplayer_member> *this)
+{
+  std::_Ref_count_base *Rep; 
+
+  Rep = this->_Rep;
+  if ( Rep && _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Uses, 0xFFFFFFFF) == 1 )
+  {
+    Rep->_Destroy(Rep);
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Weaks, 0xFFFFFFFF) == 1 )
+      Rep->_Delete_this(Rep);
+  }
+}
+
+/*
+==============
+std::shared_ptr<xbox::services::multiplayer::multiplayer_session_properties>::~shared_ptr<xbox::services::multiplayer::multiplayer_session_properties>
+==============
+*/
+void std::shared_ptr<xbox::services::multiplayer::multiplayer_session_properties>::~shared_ptr<xbox::services::multiplayer::multiplayer_session_properties>(std::shared_ptr<xbox::services::multiplayer::multiplayer_session_properties> *this)
+{
+  std::_Ref_count_base *Rep; 
+
+  Rep = this->_Rep;
+  if ( Rep && _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Uses, 0xFFFFFFFF) == 1 )
+  {
+    Rep->_Destroy(Rep);
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&Rep->_Weaks, 0xFFFFFFFF) == 1 )
+      Rep->_Delete_this(Rep);
+  }
+}
+
+/*
+==============
+?__abi_Windows_Foundation_Collections_?$IVector@PE$AAVUser@System@Xbox@Windows@@____abi_IndexOf@?Q?$IVector@PE$AAVUser@System@Xbox@Windows@@@Collections@Foundation@Windows@@?$Vector@PE$AAVUser@System@Xbox@Windows@@U?$equal_to@PE$AAVUser@System@Xbox@Windows@@@std@@$00@2Platform@@UE$AAAJPE$AAVUser@System@Xbox@4@PEAIPEA_N@Z
+==============
+*/
+__int64 ___abi_Windows_Foundation_Collections___IVector_PE_AAVUser_System_Xbox_Windows______abi_IndexOf__Q__IVector_PE_AAVUser_System_Xbox_Windows___Collections_Foundation_Windows____Vector_PE_AAVUser_System_Xbox_Windows__U__equal_to_PE_AAVUser_System_Xbox_Windows___std___00_2Platform__UE_AAAJPE_AAVUser_System_Xbox_4_PEAIPEA_N_Z(Platform::Collections::Vector<Windows::Xbox::System::User _,std::equal_to<Windows::Xbox::System::User _>,1> *this, Windows::Xbox::System::User *__param0, unsigned int *__param1, bool *__abi_returnValue)
+{
+  if ( this->__abi_disposed )
+  {
+    __abi_WinRTraiseObjectDisposedException();
+    __debugbreak();
+  }
+  *__abi_returnValue = 0;
+  *__param1 = 0;
+  *__abi_returnValue = Platform::Collections::Details::VectorIndexOf<Windows::Xbox::System::User __gc *,std::equal_to<Windows::Xbox::System::User __gc *>>(this->m_vec._Ptr, __param0, __param1);
+  return 0i64;
+}
+
+/*
+==============
+?__abi_Windows_Foundation_Collections_?$IVector@PE$AAVUserAndControllerPair@@____abi_IndexOf@?Q?$IVector@PE$AAVUserAndControllerPair@@@Collections@Foundation@Windows@@?$Vector@PE$AAVUserAndControllerPair@@U?$equal_to@PE$AAVUserAndControllerPair@@@std@@$00@2Platform@@UE$AAAJPE$AAVUserAndControllerPair@@PEAIPEA_N@Z
+==============
+*/
+__int64 ___abi_Windows_Foundation_Collections___IVector_PE_AAVUserAndControllerPair______abi_IndexOf__Q__IVector_PE_AAVUserAndControllerPair___Collections_Foundation_Windows____Vector_PE_AAVUserAndControllerPair__U__equal_to_PE_AAVUserAndControllerPair___std___00_2Platform__UE_AAAJPE_AAVUserAndControllerPair__PEAIPEA_N_Z(Platform::Collections::Vector<UserAndControllerPair _,std::equal_to<UserAndControllerPair _>,1> *this, UserAndControllerPair *__param0, unsigned int *__param1, bool *__abi_returnValue)
+{
+  if ( this->__abi_disposed )
+  {
+    __abi_WinRTraiseObjectDisposedException();
+    __debugbreak();
+  }
+  *__abi_returnValue = 0;
+  *__param1 = 0;
+  *__abi_returnValue = Platform::Collections::Details::VectorIndexOf<UserAndControllerPair __gc *,std::equal_to<UserAndControllerPair __gc *>>(this->m_vec._Ptr, __param0, __param1);
+  return 0i64;
+}
+
+/*
+==============
+?__abi_Windows_Foundation_Collections_?$IVectorView@PE$AAVUser@System@Xbox@Windows@@____abi_IndexOf@?Q?$IVectorView@PE$AAVUser@System@Xbox@Windows@@@Collections@Foundation@Windows@@?$VectorView@PE$AAVUser@System@Xbox@Windows@@U?$equal_to@PE$AAVUser@System@Xbox@Windows@@@std@@$00@2Platform@@UE$AAAJPE$AAVUser@System@Xbox@4@PEAIPEA_N@Z
+==============
+*/
+__int64 ___abi_Windows_Foundation_Collections___IVectorView_PE_AAVUser_System_Xbox_Windows______abi_IndexOf__Q__IVectorView_PE_AAVUser_System_Xbox_Windows___Collections_Foundation_Windows____VectorView_PE_AAVUser_System_Xbox_Windows__U__equal_to_PE_AAVUser_System_Xbox_Windows___std___00_2Platform__UE_AAAJPE_AAVUser_System_Xbox_4_PEAIPEA_N_Z(Platform::Collections::VectorView<Windows::Xbox::System::User _,std::equal_to<Windows::Xbox::System::User _>,1> *this, Windows::Xbox::System::User *__param0, unsigned int *__param1, bool *__abi_returnValue)
+{
+  void *Exception; 
+  __int64 pExceptionObject[3]; 
+  const volatile Platform::Object *v7; 
+
+  pExceptionObject[1] = -2i64;
+  if ( this->__abi_disposed )
+  {
+    __abi_WinRTraiseObjectDisposedException();
+    __debugbreak();
+  }
+  *__abi_returnValue = 0;
+  *__param1 = 0;
+  if ( *this->m_ctr._Ptr != this->m_good_ctr )
+  {
+    Exception = Platform::Details::Heap::AllocateException(0x68ui64, 0x90ui64);
+    v7 = (const volatile Platform::Object *)Platform::ChangedStateException::ChangedStateException(Exception);
+    pExceptionObject[0] = (__int64)__abi_winrt_ptr_ctor(v7);
+    CxxThrowException_0(pExceptionObject, (_ThrowInfo *)&TI11PE_AAVChangedStateException_Platform__);
+  }
+  *__abi_returnValue = Platform::Collections::Details::VectorIndexOf<Windows::Xbox::System::User __gc *,std::equal_to<Windows::Xbox::System::User __gc *>>(this->m_vec._Ptr, __param0, __param1);
+  return 0i64;
+}
+
+/*
+==============
+?__abi_Windows_Foundation_Collections_?$IVectorView@PE$AAVUserAndControllerPair@@____abi_IndexOf@?Q?$IVectorView@PE$AAVUserAndControllerPair@@@Collections@Foundation@Windows@@?$VectorView@PE$AAVUserAndControllerPair@@U?$equal_to@PE$AAVUserAndControllerPair@@@std@@$00@2Platform@@UE$AAAJPE$AAVUserAndControllerPair@@PEAIPEA_N@Z
+==============
+*/
+__int64 ___abi_Windows_Foundation_Collections___IVectorView_PE_AAVUserAndControllerPair______abi_IndexOf__Q__IVectorView_PE_AAVUserAndControllerPair___Collections_Foundation_Windows____VectorView_PE_AAVUserAndControllerPair__U__equal_to_PE_AAVUserAndControllerPair___std___00_2Platform__UE_AAAJPE_AAVUserAndControllerPair__PEAIPEA_N_Z(Platform::Collections::VectorView<UserAndControllerPair _,std::equal_to<UserAndControllerPair _>,1> *this, UserAndControllerPair *__param0, unsigned int *__param1, bool *__abi_returnValue)
+{
+  void *Exception; 
+  __int64 pExceptionObject[3]; 
+  const volatile Platform::Object *v7; 
+
+  pExceptionObject[1] = -2i64;
+  if ( this->__abi_disposed )
+  {
+    __abi_WinRTraiseObjectDisposedException();
+    __debugbreak();
+  }
+  *__abi_returnValue = 0;
+  *__param1 = 0;
+  if ( *this->m_ctr._Ptr != this->m_good_ctr )
+  {
+    Exception = Platform::Details::Heap::AllocateException(0x68ui64, 0x90ui64);
+    v7 = (const volatile Platform::Object *)Platform::ChangedStateException::ChangedStateException(Exception);
+    pExceptionObject[0] = (__int64)__abi_winrt_ptr_ctor(v7);
+    CxxThrowException_0(pExceptionObject, (_ThrowInfo *)&TI11PE_AAVChangedStateException_Platform__);
+  }
+  *__abi_returnValue = Platform::Collections::Details::VectorIndexOf<UserAndControllerPair __gc *,std::equal_to<UserAndControllerPair __gc *>>(this->m_vec._Ptr, __param0, __param1);
+  return 0i64;
+}
+

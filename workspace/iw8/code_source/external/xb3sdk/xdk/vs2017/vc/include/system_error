@@ -1,0 +1,350 @@
+/*
+==============
+std::error_category::equivalent
+==============
+*/
+
+bool __fastcall std::error_category::equivalent(std::error_category *this, const std::error_code *_Code, int _Errval)
+{
+  return ?equivalent@error_category@std@@UEBA_NAEBVerror_code@2@H@Z(this, _Code, _Errval);
+}
+
+/*
+==============
+std::error_category::equivalent
+==============
+*/
+
+bool __fastcall std::error_category::equivalent(std::error_category *this, const std::error_code *_Code, int _Errval)
+{
+  return ?equivalent@error_category@std@@UEBA_NAEBVerror_code@2@H@Z(this, _Code, _Errval);
+}
+
+/*
+==============
+std::error_category::default_error_condition
+==============
+*/
+
+std::error_condition *__fastcall std::error_category::default_error_condition(std::error_category *this, std::error_condition *result, int _Errval)
+{
+  return ?default_error_condition@error_category@std@@UEBA?AVerror_condition@2@H@Z(this, result, _Errval);
+}
+
+/*
+==============
+std::_System_error_category::name
+==============
+*/
+
+const char *__fastcall std::_System_error_category::name(std::_System_error_category *this)
+{
+  return ?name@_System_error_category@std@@UEBAPEBDXZ(this);
+}
+
+/*
+==============
+std::error_category::equivalent
+==============
+*/
+
+bool __fastcall std::error_category::equivalent(std::error_category *this, int _Errval, const std::error_condition *_Cond)
+{
+  return ?equivalent@error_category@std@@UEBA_NHAEBVerror_condition@2@@Z(this, _Errval, _Cond);
+}
+
+/*
+==============
+std::_Generic_error_category::name
+==============
+*/
+
+const char *__fastcall std::_Generic_error_category::name(std::_Generic_error_category *this)
+{
+  return ?name@_Generic_error_category@std@@UEBAPEBDXZ(this);
+}
+
+/*
+==============
+std::_Immortalize_impl<std::_Generic_error_category>
+==============
+*/
+
+int __fastcall std::_Immortalize_impl<std::_Generic_error_category>(void *__formal, void *_Storage_ptr, void **a3)
+{
+  return ??$_Immortalize_impl@V_Generic_error_category@std@@@std@@YAHPEAX0PEAPEAX@Z(__formal, _Storage_ptr, a3);
+}
+
+/*
+==============
+std::_Immortalize_impl<std::_System_error_category>
+==============
+*/
+
+int __fastcall std::_Immortalize_impl<std::_System_error_category>(void *__formal, void *_Storage_ptr, void **a3)
+{
+  return ??$_Immortalize_impl@V_System_error_category@std@@@std@@YAHPEAX0PEAPEAX@Z(__formal, _Storage_ptr, a3);
+}
+
+/*
+==============
+std::_System_error_category::default_error_condition
+==============
+*/
+
+std::error_condition *__fastcall std::_System_error_category::default_error_condition(std::_System_error_category *this, std::error_condition *result, int _Errval)
+{
+  return ?default_error_condition@_System_error_category@std@@UEBA?AVerror_condition@2@H@Z(this, result, _Errval);
+}
+
+/*
+==============
+std::_System_error_category::message
+==============
+*/
+
+std::string *__fastcall std::_System_error_category::message(std::_System_error_category *this, std::string *result, int _Errcode)
+{
+  return ?message@_System_error_category@std@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@2@H@Z(this, result, _Errcode);
+}
+
+/*
+==============
+std::error_category::~error_category
+==============
+*/
+
+void __fastcall std::error_category::~error_category(std::error_category *this)
+{
+  ??1error_category@std@@UEAA@XZ(this);
+}
+
+/*
+==============
+std::_Generic_error_category::message
+==============
+*/
+
+std::string *__fastcall std::_Generic_error_category::message(std::_Generic_error_category *this, std::string *result, int _Errcode)
+{
+  return ?message@_Generic_error_category@std@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@2@H@Z(this, result, _Errcode);
+}
+
+/*
+==============
+std::_Immortalize_impl<std::_Generic_error_category>
+==============
+*/
+__int64 std::_Immortalize_impl<std::_Generic_error_category>(void *__formal, void *_Storage_ptr, void **a3)
+{
+  *((_QWORD *)_Storage_ptr + 1) = 3i64;
+  *(_QWORD *)_Storage_ptr = &std::_Generic_error_category::`vftable';
+  return 1i64;
+}
+
+/*
+==============
+std::_Immortalize_impl<std::_System_error_category>
+==============
+*/
+__int64 std::_Immortalize_impl<std::_System_error_category>(void *__formal, void *_Storage_ptr, void **a3)
+{
+  *((_QWORD *)_Storage_ptr + 1) = 7i64;
+  *(_QWORD *)_Storage_ptr = &std::_System_error_category::`vftable';
+  return 1i64;
+}
+
+/*
+==============
+std::error_category::~error_category
+==============
+*/
+void std::error_category::~error_category(std::error_category *this)
+{
+  ;
+}
+
+/*
+==============
+std::_System_error_category::default_error_condition
+==============
+*/
+std::error_condition *std::_System_error_category::default_error_condition(std::_System_error_category *this, std::error_condition *result, int _Errval)
+{
+  int v5; 
+
+  v5 = std::_Winerror_map(_Errval);
+  if ( v5 )
+  {
+    std::_Execute_once(&`std::_Immortalize<std::_Generic_error_category>'::`2'::_Flag, (int (__stdcall *)(void *, void *, void **))std::_Immortalize_impl<std::_Generic_error_category>, &`std::_Immortalize<std::_Generic_error_category>'::`2'::_Storage);
+    result->_Myval = v5;
+    result->_Mycat = (const std::error_category *)&`std::_Immortalize<std::_Generic_error_category>'::`2'::_Storage;
+  }
+  else
+  {
+    std::_Execute_once(&`std::_Immortalize<std::_System_error_category>'::`2'::_Flag, (int (__stdcall *)(void *, void *, void **))std::_Immortalize_impl<std::_System_error_category>, &`std::_Immortalize<std::_System_error_category>'::`2'::_Storage);
+    result->_Myval = _Errval;
+    result->_Mycat = (const std::error_category *)&`std::_Immortalize<std::_System_error_category>'::`2'::_Storage;
+  }
+  return result;
+}
+
+/*
+==============
+std::error_category::default_error_condition
+==============
+*/
+std::error_condition *std::error_category::default_error_condition(std::error_category *this, std::error_condition *result, int _Errval)
+{
+  std::error_condition *v3; 
+
+  result->_Myval = _Errval;
+  v3 = result;
+  result->_Mycat = this;
+  return v3;
+}
+
+/*
+==============
+std::error_category::equivalent
+==============
+*/
+bool std::error_category::equivalent(std::error_category *this, const std::error_code *_Code, int _Errval)
+{
+  return this->_Addr == _Code->_Mycat->_Addr && _Code->_Myval == _Errval;
+}
+
+/*
+==============
+std::error_category::equivalent
+==============
+*/
+bool std::error_category::equivalent(std::error_category *this, int _Errval, const std::error_condition *_Cond)
+{
+  std::error_condition *v4; 
+  char v6[24]; 
+
+  v4 = this->default_error_condition(this, v6, (unsigned int)_Errval);
+  return v4->_Mycat->_Addr == _Cond->_Mycat->_Addr && v4->_Myval == _Cond->_Myval;
+}
+
+/*
+==============
+std::_Generic_error_category::message
+==============
+*/
+std::string *std::_Generic_error_category::message(std::_Generic_error_category *this, std::string *result, int _Errcode)
+{
+  const char *v4; 
+  unsigned __int64 v5; 
+
+  v4 = std::_Syserror_map(_Errcode);
+  result->_Mypair._Myval2._Mysize = 0i64;
+  v5 = -1i64;
+  result->_Mypair._Myval2._Myres = 15i64;
+  result->_Mypair._Myval2._Bx._Buf[0] = 0;
+  do
+    ++v5;
+  while ( v4[v5] );
+  std::string::assign(result, v4, v5);
+  return result;
+}
+
+/*
+==============
+std::_System_error_category::message
+==============
+*/
+std::string *std::_System_error_category::message(std::_System_error_category *this, std::string *result, int _Errcode)
+{
+  std::string *Ptr; 
+  unsigned int v6; 
+  unsigned __int64 v7; 
+  unsigned __int64 Mysize; 
+  std::string *v9; 
+  unsigned __int64 Myres; 
+  unsigned __int64 v11; 
+  unsigned __int64 v13; 
+  char *v14; 
+  unsigned __int64 v15; 
+  char *v16; 
+
+  std::string::string(result, 0x7FFFui64, 0);
+  Ptr = result;
+  if ( result->_Mypair._Myval2._Myres >= 0x10 )
+    Ptr = (std::string *)result->_Mypair._Myval2._Bx._Ptr;
+  v6 = std::_Winerror_message(_Errcode, Ptr->_Mypair._Myval2._Bx._Buf, 0x7FFFu);
+  if ( v6 )
+  {
+    v7 = v6;
+    Mysize = result->_Mypair._Myval2._Mysize;
+    if ( v7 > Mysize )
+    {
+      std::string::append(result, v7 - Mysize, 0);
+    }
+    else
+    {
+      v9 = result;
+      if ( result->_Mypair._Myval2._Myres >= 0x10 )
+        v9 = (std::string *)result->_Mypair._Myval2._Bx._Ptr;
+      result->_Mypair._Myval2._Mysize = v7;
+      v9->_Mypair._Myval2._Bx._Buf[v7] = 0;
+    }
+  }
+  else
+  {
+    std::string::assign(result, "unknown error", 0xDui64);
+  }
+  Myres = result->_Mypair._Myval2._Myres;
+  if ( Myres >= 0x10 )
+  {
+    v11 = result->_Mypair._Myval2._Mysize;
+    if ( v11 < 0x10 )
+    {
+      std::string::_Become_small(result);
+      return result;
+    }
+    v13 = v11 | 0xF;
+    if ( v13 > 0x7FFFFFFFFFFFFFFFi64 )
+      v13 = 0x7FFFFFFFFFFFFFFFi64;
+    if ( v13 < Myres )
+    {
+      v14 = std::allocator<char>::allocate((std::allocator<char> *)result, v13 + 1);
+      memcpy_0(v14, result->_Mypair._Myval2._Bx._Ptr, result->_Mypair._Myval2._Mysize + 1);
+      v15 = result->_Mypair._Myval2._Myres + 1;
+      v16 = result->_Mypair._Myval2._Bx._Ptr;
+      if ( v15 >= 0x1000 )
+      {
+        v15 = result->_Mypair._Myval2._Myres + 40;
+        if ( (unsigned __int64)&v16[-*((_QWORD *)v16 - 1) - 8] > 0x1F )
+          _invalid_parameter_noinfo_noreturn();
+        v16 = (char *)*((_QWORD *)v16 - 1);
+      }
+      operator delete(v16, v15);
+      result->_Mypair._Myval2._Bx._Ptr = v14;
+      result->_Mypair._Myval2._Myres = v13;
+    }
+  }
+  return result;
+}
+
+/*
+==============
+std::_Generic_error_category::name
+==============
+*/
+const char *std::_Generic_error_category::name(std::_Generic_error_category *this)
+{
+  return "generic";
+}
+
+/*
+==============
+std::_System_error_category::name
+==============
+*/
+const char *std::_System_error_category::name(std::_System_error_category *this)
+{
+  return "system";
+}
+

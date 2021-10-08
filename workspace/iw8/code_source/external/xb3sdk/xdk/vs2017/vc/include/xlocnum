@@ -1,0 +1,36 @@
+/*
+==============
+std::_Maklocwcs
+==============
+*/
+
+wchar_t *__fastcall std::_Maklocwcs(const wchar_t *_Ptr)
+{
+  return ?_Maklocwcs@std@@YAPEA_WPEB_W@Z(_Ptr);
+}
+
+/*
+==============
+std::_Maklocwcs
+==============
+*/
+wchar_t *std::_Maklocwcs(const wchar_t *_Ptr)
+{
+  __int64 v2; 
+  void *v4; 
+  void *v5; 
+
+  v2 = -1i64;
+  while ( _Ptr[++v2] != 0 )
+    ;
+  v4 = calloc(v2 + 1, 2ui64);
+  v5 = v4;
+  if ( !v4 )
+  {
+    std::_Xbad_alloc();
+    JUMPOUT(0x14019837Bi64);
+  }
+  memcpy_0(v4, _Ptr, 2 * v2 + 2);
+  return (wchar_t *)v5;
+}
+

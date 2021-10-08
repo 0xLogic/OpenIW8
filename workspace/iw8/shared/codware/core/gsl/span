@@ -1,0 +1,309 @@
+/*
+==============
+gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::operator-
+==============
+*/
+
+gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *__fastcall gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::operator-(gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *this, gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *result, __int64 n)
+{
+  return ??G?$span_iterator@V?$span@UStreamSortKeyPacked@@$0?0@gsl@@$0A@@details@gsl@@QEBA?AV012@_J@Z(this, result, n);
+}
+
+/*
+==============
+gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::operator+
+==============
+*/
+
+gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *__fastcall gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::operator+(gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *this, gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *result, __int64 n)
+{
+  return ??H?$span_iterator@V?$span@UStreamSortKeyPacked@@$0?0@gsl@@$0A@@details@gsl@@QEBA?AV012@_J@Z(this, result, n);
+}
+
+/*
+==============
+gsl::make_span<StreamSortKeyPacked>
+==============
+*/
+
+gsl::span<StreamSortKeyPacked,-1> *__fastcall gsl::make_span<StreamSortKeyPacked>(gsl::span<StreamSortKeyPacked,-1> *result, StreamSortKeyPacked *ptr, __int64 count)
+{
+  return ??$make_span@UStreamSortKeyPacked@@@gsl@@YA?AV?$span@UStreamSortKeyPacked@@$0?0@0@PEAUStreamSortKeyPacked@@_J@Z(result, ptr, count);
+}
+
+/*
+==============
+gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>
+==============
+*/
+
+void __fastcall gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>(gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *this, const gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *other)
+{
+  ??0?$span_iterator@V?$span@UStreamSortKeyPacked@@$0?0@gsl@@$0A@@details@gsl@@QEAA@AEBV012@@Z(this, other);
+}
+
+/*
+==============
+gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::operator--
+==============
+*/
+
+gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *__fastcall gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::operator--(gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *this)
+{
+  return ??F?$span_iterator@V?$span@UStreamSortKeyPacked@@$0?0@gsl@@$0A@@details@gsl@@QEAAAEAV012@XZ(this);
+}
+
+/*
+==============
+gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::operator*
+==============
+*/
+
+StreamSortKeyPacked *__fastcall gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::operator*(gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *this)
+{
+  return ??D?$span_iterator@V?$span@UStreamSortKeyPacked@@$0?0@gsl@@$0A@@details@gsl@@QEBAAEAUStreamSortKeyPacked@@XZ(this);
+}
+
+/*
+==============
+gsl::span<StreamReader::Job,-1>::operator[]
+==============
+*/
+
+StreamReader::Job *__fastcall gsl::span<StreamReader::Job,-1>::operator[](gsl::span<StreamReader::Job,-1> *this, __int64 idx)
+{
+  return ??A?$span@UJob@StreamReader@@$0?0@gsl@@QEBAAEAUJob@StreamReader@@_J@Z(this, idx);
+}
+
+/*
+==============
+gsl::make_span<StreamLoggerEvent>
+==============
+*/
+
+gsl::span<StreamLoggerEvent,-1> *__fastcall gsl::make_span<StreamLoggerEvent>(gsl::span<StreamLoggerEvent,-1> *result, StreamLoggerEvent *ptr, __int64 count)
+{
+  return ??$make_span@UStreamLoggerEvent@@@gsl@@YA?AV?$span@UStreamLoggerEvent@@$0?0@0@PEAUStreamLoggerEvent@@_J@Z(result, ptr, count);
+}
+
+/*
+==============
+gsl::details::operator!=
+==============
+*/
+
+bool __fastcall gsl::details::operator!=(const gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *lhs, const gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *rhs)
+{
+  return ??9details@gsl@@YA_NAEBV?$span_iterator@V?$span@UStreamSortKeyPacked@@$0?0@gsl@@$0A@@01@0@Z(lhs, rhs);
+}
+
+/*
+==============
+gsl::span<StreamLoggerEvent,-1>::operator[]
+==============
+*/
+
+StreamLoggerEvent *__fastcall gsl::span<StreamLoggerEvent,-1>::operator[](gsl::span<StreamLoggerEvent,-1> *this, __int64 idx)
+{
+  return ??A?$span@UStreamLoggerEvent@@$0?0@gsl@@QEBAAEAUStreamLoggerEvent@@_J@Z(this, idx);
+}
+
+/*
+==============
+gsl::make_span<StreamSortKeyPacked>
+==============
+*/
+gsl::span<StreamSortKeyPacked,-1> *gsl::make_span<StreamSortKeyPacked>(gsl::span<StreamSortKeyPacked,-1> *result, StreamSortKeyPacked *ptr, __int64 count)
+{
+  __int64 size; 
+
+  result->storage_.size_ = count;
+  if ( count < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\gsl\\span", 338, ASSERT_TYPE_SANITY, "( size >= 0 )", (const char *)&queryFormat, "size >= 0") )
+    __debugbreak();
+  size = result->storage_.size_;
+  result->storage_.data_ = ptr;
+  if ( !ptr )
+  {
+    if ( !size )
+      return result;
+    goto LABEL_8;
+  }
+  if ( size < 0 )
+  {
+LABEL_8:
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\gsl\\span", 546, ASSERT_TYPE_SANITY, "( (!data && ExtentType::size() == 0) || (data && ExtentType::size() >= 0) )", (const char *)&queryFormat, "(!data && ExtentType::size() == 0) || (data && ExtentType::size() >= 0)") )
+      __debugbreak();
+  }
+  return result;
+}
+
+/*
+==============
+gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>
+==============
+*/
+void gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>(gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *this, const gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *other)
+{
+  __int64 index; 
+  const gsl::span<StreamSortKeyPacked,-1> *span; 
+
+  index = other->index_;
+  span = other->span_;
+  this->span_ = other->span_;
+  this->index_ = index;
+  if ( span && (index < 0 || index > span->storage_.size_) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\gsl\\span", 162, ASSERT_TYPE_SANITY, "( span == nullptr || (index_ >= 0 && index <= span_->length()) )", (const char *)&queryFormat, "span == nullptr || (index_ >= 0 && index <= span_->length())", -2i64) )
+    __debugbreak();
+}
+
+/*
+==============
+gsl::details::operator!=
+==============
+*/
+bool gsl::details::operator!=(const gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *lhs, const gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *rhs)
+{
+  return lhs->span_ != rhs->span_ || lhs->index_ != rhs->index_;
+}
+
+/*
+==============
+gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::operator*
+==============
+*/
+StreamSortKeyPacked *gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::operator*(gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *this)
+{
+  const gsl::span<StreamSortKeyPacked,-1> *span; 
+  __int64 index; 
+
+  if ( !this->span_ && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\gsl\\span", 175, ASSERT_TYPE_SANITY, "( span_ )", (const char *)&queryFormat, "span_") )
+    __debugbreak();
+  span = this->span_;
+  index = this->index_;
+  if ( (index < 0 || index >= span->storage_.size_) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\gsl\\span", 514, ASSERT_TYPE_SANITY, "( idx >= 0 && idx < storage_.size() )", (const char *)&queryFormat, "idx >= 0 && idx < storage_.size()") )
+    __debugbreak();
+  return &span->storage_.data_[index];
+}
+
+/*
+==============
+gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::operator--
+==============
+*/
+gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::operator--(gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *this)
+{
+  const gsl::span<StreamSortKeyPacked,-1> *span; 
+  __int64 index; 
+
+  span = this->span_;
+  if ( !span || (index = this->index_, index <= 0) || index > span->storage_.size_ )
+  {
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\gsl\\span", 201, ASSERT_TYPE_SANITY, "( span_ && index_ > 0 && index_ <= span_->length() )", (const char *)&queryFormat, "span_ && index_ > 0 && index_ <= span_->length()") )
+      __debugbreak();
+  }
+  --this->index_;
+  return this;
+}
+
+/*
+==============
+gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::operator-
+==============
+*/
+gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::operator-(gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *this, gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *result, __int64 n)
+{
+  __int64 index; 
+  const gsl::span<StreamSortKeyPacked,-1> *span; 
+  __int64 v7; 
+  gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> other; 
+
+  index = this->index_;
+  span = this->span_;
+  other.span_ = span;
+  if ( span && (index < 0 || index > span->storage_.size_) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\gsl\\span", 162, ASSERT_TYPE_SANITY, "( span == nullptr || (index_ >= 0 && index <= span_->length()) )", (const char *)&queryFormat, "span == nullptr || (index_ >= 0 && index <= span_->length())", -2i64, other.span_) )
+    __debugbreak();
+  v7 = -n;
+  if ( (!span || v7 + index < 0 || v7 + index > span->storage_.size_) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\gsl\\span", 221, ASSERT_TYPE_SANITY, "( span_ && (index_ + n) >= 0 && (index_ + n) <= span_->length() )", (const char *)&queryFormat, "span_ && (index_ + n) >= 0 && (index_ + n) <= span_->length()") )
+    __debugbreak();
+  other.index_ = v7 + index;
+  gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>(result, &other);
+  return result;
+}
+
+/*
+==============
+gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::operator+
+==============
+*/
+gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0>::operator+(gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *this, gsl::details::span_iterator<gsl::span<StreamSortKeyPacked,-1>,0> *result, __int64 n)
+{
+  __int64 index; 
+  const gsl::span<StreamSortKeyPacked,-1> *span; 
+  __int64 v7; 
+
+  index = this->index_;
+  span = this->span_;
+  if ( this->span_ && (index < 0 || index > span->storage_.size_) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\gsl\\span", 162, ASSERT_TYPE_SANITY, "( span == nullptr || (index_ >= 0 && index <= span_->length()) )", (const char *)&queryFormat, "span == nullptr || (index_ >= 0 && index <= span_->length())", -2i64) )
+    __debugbreak();
+  if ( (!span || index + n < 0 || index + n > span->storage_.size_) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\gsl\\span", 221, ASSERT_TYPE_SANITY, "( span_ && (index_ + n) >= 0 && (index_ + n) <= span_->length() )", (const char *)&queryFormat, "span_ && (index_ + n) >= 0 && (index_ + n) <= span_->length()") )
+    __debugbreak();
+  v7 = index + n;
+  result->span_ = span;
+  result->index_ = index + n;
+  if ( span && (v7 < 0 || v7 > span->storage_.size_) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\gsl\\span", 162, ASSERT_TYPE_SANITY, "( span == nullptr || (index_ >= 0 && index <= span_->length()) )", (const char *)&queryFormat, "span == nullptr || (index_ >= 0 && index <= span_->length())") )
+    __debugbreak();
+  return result;
+}
+
+/*
+==============
+gsl::make_span<StreamLoggerEvent>
+==============
+*/
+gsl::span<StreamLoggerEvent,-1> *gsl::make_span<StreamLoggerEvent>(gsl::span<StreamLoggerEvent,-1> *result, StreamLoggerEvent *ptr, __int64 count)
+{
+  __int64 size; 
+
+  result->storage_.size_ = count;
+  if ( count < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\gsl\\span", 338, ASSERT_TYPE_SANITY, "( size >= 0 )", (const char *)&queryFormat, "size >= 0") )
+    __debugbreak();
+  size = result->storage_.size_;
+  result->storage_.data_ = ptr;
+  if ( !ptr )
+  {
+    if ( !size )
+      return result;
+    goto LABEL_8;
+  }
+  if ( size < 0 )
+  {
+LABEL_8:
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\gsl\\span", 546, ASSERT_TYPE_SANITY, "( (!data && ExtentType::size() == 0) || (data && ExtentType::size() >= 0) )", (const char *)&queryFormat, "(!data && ExtentType::size() == 0) || (data && ExtentType::size() >= 0)") )
+      __debugbreak();
+  }
+  return result;
+}
+
+/*
+==============
+gsl::span<StreamLoggerEvent,-1>::operator[]
+==============
+*/
+StreamLoggerEvent *gsl::span<StreamLoggerEvent,-1>::operator[](gsl::span<StreamLoggerEvent,-1> *this, __int64 idx)
+{
+  if ( (idx < 0 || idx >= this->storage_.size_) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\gsl\\span", 514, ASSERT_TYPE_SANITY, "( idx >= 0 && idx < storage_.size() )", (const char *)&queryFormat, "idx >= 0 && idx < storage_.size()") )
+    __debugbreak();
+  return &this->storage_.data_[idx];
+}
+
+/*
+==============
+gsl::span<StreamReader::Job,-1>::operator[]
+==============
+*/
+StreamReader::Job *gsl::span<StreamReader::Job,-1>::operator[](gsl::span<StreamReader::Job,-1> *this, __int64 idx)
+{
+  if ( (idx < 0 || idx >= this->storage_.size_) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\gsl\\span", 514, ASSERT_TYPE_SANITY, "( idx >= 0 && idx < storage_.size() )", (const char *)&queryFormat, "idx >= 0 && idx < storage_.size()") )
+    __debugbreak();
+  return &this->storage_.data_[idx];
+}
+

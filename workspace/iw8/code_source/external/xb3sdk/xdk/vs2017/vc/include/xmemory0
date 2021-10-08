@@ -1,0 +1,214 @@
+/*
+==============
+std::allocator<void *>::allocate
+==============
+*/
+
+void **__fastcall std::allocator<void *>::allocate(std::allocator<void *> *this, const unsigned __int64 _Count)
+{
+  return ?allocate@?$allocator@PEAX@std@@QEAAPEAPEAX_K@Z(this, _Count);
+}
+
+/*
+==============
+std::allocator<void *>::deallocate
+==============
+*/
+
+void __fastcall std::allocator<void *>::deallocate(std::allocator<void *> *this, void **const _Ptr, const unsigned __int64 _Count)
+{
+  ?deallocate@?$allocator@PEAX@std@@QEAAXQEAPEAX_K@Z(this, _Ptr, _Count);
+}
+
+/*
+==============
+std::allocator<wchar_t>::allocate
+==============
+*/
+
+wchar_t *__fastcall std::allocator<wchar_t>::allocate(std::allocator<wchar_t> *this, const unsigned __int64 _Count)
+{
+  return ?allocate@?$allocator@_W@std@@QEAAPEA_W_K@Z(this, _Count);
+}
+
+/*
+==============
+std::allocator<flatbuffers::FlatBufferBuilder::FieldLoc>::allocate
+==============
+*/
+
+flatbuffers::FlatBufferBuilder::FieldLoc *__fastcall std::allocator<flatbuffers::FlatBufferBuilder::FieldLoc>::allocate(std::allocator<flatbuffers::FlatBufferBuilder::FieldLoc> *this, const unsigned __int64 _Count)
+{
+  return ?allocate@?$allocator@UFieldLoc@FlatBufferBuilder@flatbuffers@@@std@@QEAAPEAUFieldLoc@FlatBufferBuilder@flatbuffers@@_K@Z(this, _Count);
+}
+
+/*
+==============
+std::allocator<char>::allocate
+==============
+*/
+
+char *__fastcall std::allocator<char>::allocate(std::allocator<char> *this, const unsigned __int64 _Count)
+{
+  return ?allocate@?$allocator@D@std@@QEAAPEAD_K@Z(this, _Count);
+}
+
+/*
+==============
+std::allocator<wchar_t>::allocate
+==============
+*/
+unsigned __int64 std::allocator<wchar_t>::allocate(std::allocator<wchar_t> *this, const unsigned __int64 _Count)
+{
+  unsigned __int64 result; 
+  unsigned __int64 v3; 
+  void *v4; 
+  void *v5; 
+
+  result = 2 * _Count;
+  if ( _Count > 0x7FFFFFFFFFFFFFFFi64 )
+  {
+    result = -1i64;
+LABEL_4:
+    v3 = result + 39;
+    if ( result + 39 <= result )
+      v3 = -1i64;
+    v4 = operator new(v3);
+    v5 = v4;
+    if ( !v4 )
+      _invalid_parameter_noinfo_noreturn();
+    result = ((unsigned __int64)v4 + 39) & 0xFFFFFFFFFFFFFFE0ui64;
+    *(_QWORD *)(result - 8) = v5;
+    return result;
+  }
+  if ( result >= 0x1000 )
+    goto LABEL_4;
+  if ( result )
+    return (unsigned __int64)operator new(2 * _Count);
+  return result;
+}
+
+/*
+==============
+std::allocator<flatbuffers::FlatBufferBuilder::FieldLoc>::allocate
+==============
+*/
+unsigned __int64 std::allocator<flatbuffers::FlatBufferBuilder::FieldLoc>::allocate(std::allocator<flatbuffers::FlatBufferBuilder::FieldLoc> *this, const unsigned __int64 _Count)
+{
+  unsigned __int64 result; 
+  unsigned __int64 v3; 
+  void *v4; 
+  flatbuffers::FlatBufferBuilder::FieldLoc v5; 
+
+  result = 8 * _Count;
+  if ( _Count > 0x1FFFFFFFFFFFFFFFi64 )
+  {
+    result = -1i64;
+LABEL_4:
+    v3 = result + 39;
+    if ( result + 39 <= result )
+      v3 = -1i64;
+    v4 = operator new(v3);
+    v5 = (flatbuffers::FlatBufferBuilder::FieldLoc)v4;
+    if ( !v4 )
+      _invalid_parameter_noinfo_noreturn();
+    result = ((unsigned __int64)v4 + 39) & 0xFFFFFFFFFFFFFFE0ui64;
+    *(flatbuffers::FlatBufferBuilder::FieldLoc *)(result - 8) = v5;
+    return result;
+  }
+  if ( result >= 0x1000 )
+    goto LABEL_4;
+  if ( result )
+    return (unsigned __int64)operator new(8 * _Count);
+  return result;
+}
+
+/*
+==============
+std::allocator<void *>::allocate
+==============
+*/
+unsigned __int64 std::allocator<void *>::allocate(std::allocator<void *> *this, const unsigned __int64 _Count)
+{
+  unsigned __int64 result; 
+  unsigned __int64 v3; 
+  void *v4; 
+  void *v5; 
+
+  result = 8 * _Count;
+  if ( _Count > 0x1FFFFFFFFFFFFFFFi64 )
+  {
+    result = -1i64;
+LABEL_4:
+    v3 = result + 39;
+    if ( result + 39 <= result )
+      v3 = -1i64;
+    v4 = operator new(v3);
+    v5 = v4;
+    if ( !v4 )
+      _invalid_parameter_noinfo_noreturn();
+    result = ((unsigned __int64)v4 + 39) & 0xFFFFFFFFFFFFFFE0ui64;
+    *(_QWORD *)(result - 8) = v5;
+    return result;
+  }
+  if ( result >= 0x1000 )
+    goto LABEL_4;
+  if ( result )
+    return (unsigned __int64)operator new(8 * _Count);
+  return result;
+}
+
+/*
+==============
+std::allocator<void *>::deallocate
+==============
+*/
+void std::allocator<void *>::deallocate(std::allocator<void *> *this, void **const _Ptr, const unsigned __int64 _Count)
+{
+  unsigned __int64 v4; 
+
+  v4 = 8 * _Count;
+  if ( 8 * _Count >= 0x1000 )
+  {
+    v4 += 39i64;
+    if ( (unsigned __int64)((char *)_Ptr - (_BYTE *)*(_Ptr - 1) - 8) > 0x1F )
+      _invalid_parameter_noinfo_noreturn();
+    _Ptr = (void **const)*(_Ptr - 1);
+  }
+  operator delete(_Ptr, v4);
+}
+
+/*
+==============
+std::allocator<char>::allocate
+==============
+*/
+char *std::allocator<char>::allocate(std::allocator<char> *this, const unsigned __int64 _Count)
+{
+  unsigned __int64 v2; 
+  void *v3; 
+  void *v4; 
+  char *result; 
+
+  if ( _Count < 0x1000 )
+  {
+    if ( _Count )
+      return (char *)operator new(_Count);
+    else
+      return 0i64;
+  }
+  else
+  {
+    v2 = _Count + 39;
+    if ( _Count + 39 <= _Count )
+      v2 = -1i64;
+    v3 = operator new(v2);
+    v4 = v3;
+    if ( !v3 )
+      _invalid_parameter_noinfo_noreturn();
+    result = (char *)(((unsigned __int64)v3 + 39) & 0xFFFFFFFFFFFFFFE0ui64);
+    *((_QWORD *)result - 1) = v4;
+  }
+  return result;
+}
+

@@ -1,0 +1,53 @@
+/*
+==============
+std::to_wstring
+==============
+*/
+
+std::wstring *__fastcall std::to_wstring(std::wstring *result, int _Val)
+{
+  return ?to_wstring@std@@YA?AV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@1@H@Z(result, _Val);
+}
+
+/*
+==============
+std::to_wstring
+==============
+*/
+std::wstring *std::to_wstring(std::wstring *result, int _Val)
+{
+  unsigned int v2; 
+  wchar_t *v3; 
+  unsigned int v5; 
+  char v7[6]; 
+
+  v2 = _Val;
+  v3 = (wchar_t *)v7;
+  if ( _Val >= 0 )
+  {
+    do
+    {
+      *--v3 = v2 % 0xA + 48;
+      v2 /= 0xAu;
+    }
+    while ( v2 );
+  }
+  else
+  {
+    v5 = -_Val;
+    do
+    {
+      *--v3 = v5 % 0xA + 48;
+      v5 /= 0xAu;
+    }
+    while ( v5 );
+    *--v3 = 45;
+  }
+  result->_Mypair._Myval2._Myres = 7i64;
+  result->_Mypair._Myval2._Mysize = 0i64;
+  result->_Mypair._Myval2._Bx._Buf[0] = 0;
+  if ( v3 != (wchar_t *)v7 )
+    std::wstring::assign(result, v3, (v7 - (char *)v3) >> 1);
+  return result;
+}
+

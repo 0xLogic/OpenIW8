@@ -1,0 +1,60 @@
+/*
+==============
+?__abi_Windows_Foundation_Collections_?$IIterator@PE$AAU?$IKeyValuePair@PE$AAVString@Platform@@PE$AAUIBuffer@Streams@Storage@Windows@@@Collections@Foundation@Windows@@____abi_MoveNext@?Q?$IIterator@PE$AAU?$IKeyValuePair@PE$AAVString@Platform@@PE$AAUIBuffer@Streams@Storage@Windows@@@Collections@Foundation@Windows@@@Collections@Foundation@Windows@@?$IteratorForAnyMapView@PE$AAVString@Platform@@PE$AAUIBuffer@Streams@Storage@Windows@@V?$map@PE$AAVString@Platform@@V?$Agile@PE$AAUIBuffer@Streams@Storage@Windows@@$00@2@U?$less@PE$AAVString@Platform@@@std@@V?$allocator@U?$pair@QE$AAVString@Platform@@V?$Agile@PE$AAUIBuffer@Streams@Storage@Windows@@$00@2@@std@@@5@@std@@@Details@2Platform@@UE$AAAJPEA_N@Z
+==============
+*/
+__int64 ___abi_Windows_Foundation_Collections___IIterator_PE_AAU__IKeyValuePair_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows___Collections_Foundation_Windows______abi_MoveNext__Q__IIterator_PE_AAU__IKeyValuePair_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows___Collections_Foundation_Windows___Collections_Foundation_Windows____IteratorForAnyMapView_PE_AAVString_Platform__PE_AAUIBuffer_Streams_Storage_Windows__V__map_PE_AAVString_Platform__V__Agile_PE_AAUIBuffer_Streams_Storage_Windows___00_2_U__less_PE_AAVString_Platform___std__V__allocator_U__pair_QE_AAVString_Platform__V__Agile_PE_AAUIBuffer_Streams_Storage_Windows___00_2__std___5__std___Details_2Platform__UE_AAAJPEA_N_Z(Platform::Collections::Details::IteratorForAnyMapView<Platform::String _,Windows::Storage::Streams::IBuffer _,std::map<Platform::String _,Platform::Agile<Windows::Storage::Streams::IBuffer _,1>> > *this, bool *__abi_returnValue)
+{
+  std::_Tree_node<std::pair<Platform::String _ const,Platform::Agile<Windows::Storage::Streams::IBuffer _,1> >,void *> *Ptr; 
+  std::_Tree_node<std::pair<Platform::String _ const,Platform::Agile<Windows::Storage::Streams::IBuffer _,1> >,void *> *Right; 
+  std::_Tree_node<std::pair<Platform::String _ const,Platform::Agile<Windows::Storage::Streams::IBuffer _,1> >,void *> *i; 
+  void *Exception; 
+  void *v9; 
+  void *pExceptionObject; 
+  __int64 v11[4]; 
+  const volatile Platform::Object *v12; 
+  const volatile Platform::Object *v13; 
+
+  v11[1] = -2i64;
+  if ( this->__abi_disposed )
+  {
+    __abi_WinRTraiseObjectDisposedException();
+    __debugbreak();
+  }
+  *__abi_returnValue = 0;
+  if ( *this->m_ctr._Ptr != this->m_good_ctr )
+  {
+    Exception = Platform::Details::Heap::AllocateException(0x68ui64, 0x90ui64);
+    v12 = (const volatile Platform::Object *)Platform::ChangedStateException::ChangedStateException(Exception);
+    pExceptionObject = __abi_winrt_ptr_ctor(v12);
+    CxxThrowException_0(&pExceptionObject, (_ThrowInfo *)&TI11PE_AAVChangedStateException_Platform__);
+  }
+  Ptr = this->m_iter._Ptr;
+  if ( Ptr == this->m_map._Ptr->_Mypair._Myval2._Myval2._Myhead )
+  {
+    v9 = Platform::Details::Heap::AllocateException(0x68ui64, 0x90ui64);
+    v13 = (const volatile Platform::Object *)Platform::OutOfBoundsException::OutOfBoundsException(v9);
+    v11[0] = (__int64)__abi_winrt_ptr_ctor(v13);
+    CxxThrowException_0(v11, (_ThrowInfo *)&TI11PE_AAVOutOfBoundsException_Platform__);
+  }
+  Right = Ptr->_Right;
+  if ( Right->_Isnil )
+  {
+    for ( Right = Ptr->_Parent; !Right->_Isnil; Right = Right->_Parent )
+    {
+      if ( Ptr != Right->_Right )
+        break;
+      this->m_iter._Ptr = Right;
+      Ptr = Right;
+    }
+  }
+  else
+  {
+    for ( i = Right->_Left; !i->_Isnil; i = i->_Left )
+      Right = i;
+  }
+  this->m_iter._Ptr = Right;
+  *__abi_returnValue = Right != this->m_map._Ptr->_Mypair._Myval2._Myval2._Myhead;
+  return 0i64;
+}
+

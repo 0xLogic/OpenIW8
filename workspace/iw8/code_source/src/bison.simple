@@ -1,0 +1,1157 @@
+/*
+==============
+yyparse
+==============
+*/
+
+int __fastcall yyparse()
+{
+  return ?yyparse@@YAHXZ();
+}
+
+/*
+==============
+yyparse
+==============
+*/
+__int64 yyparse()
+{
+  __int128 *v0; 
+  char *v1; 
+  int v2; 
+  __int64 v3; 
+  int v4; 
+  __int16 *v6; 
+  char *v7; 
+  __int128 *v8; 
+  __int64 v9; 
+  unsigned __int64 v10; 
+  __int64 v11; 
+  void *v12; 
+  int v13; 
+  __int128 *v14; 
+  signed __int64 v15; 
+  unsigned __int64 v16; 
+  __int64 v17; 
+  void *v18; 
+  int v19; 
+  __int128 *v20; 
+  signed __int64 v21; 
+  __int64 v22; 
+  int v23; 
+  int v24; 
+  int v25; 
+  unsigned int v26; 
+  __int64 v27; 
+  __int64 v28; 
+  int v29; 
+  int v30; 
+  int v34; 
+  unsigned int v35; 
+  __int64 v36; 
+  int v37; 
+  sval_u v39; 
+  sval_u ArrayStatement; 
+  sval_u val5; 
+  sval_u v42; 
+  sval_u v43; 
+  int v44; 
+  sval_u v45; 
+  int v46; 
+  sval_u v47; 
+  sval_u v48; 
+  sval_u v49; 
+  sval_u v50; 
+  scr_string_t v51; 
+  unsigned int canonicalString; 
+  sval_u v53; 
+  sval_u v54; 
+  scr_string_t v55; 
+  unsigned int v56; 
+  sval_u v57; 
+  scr_string_t v58; 
+  unsigned int v59; 
+  sval_u v60; 
+  sval_u v61; 
+  sval_u v62; 
+  sval_u v63; 
+  sval_u v64; 
+  sval_u v65; 
+  sval_u v66; 
+  sval_u v67; 
+  sval_u v68; 
+  sval_u v69; 
+  sval_u v70; 
+  sval_u v71; 
+  sval_u v72; 
+  sval_u v73; 
+  sval_u v74; 
+  sval_u v75; 
+  sval_u v76; 
+  sval_u v77; 
+  sval_u v78; 
+  sval_u v79; 
+  sval_u v80; 
+  sval_u v81; 
+  sval_u v82; 
+  sval_u v83; 
+  sval_u v84; 
+  sval_u v85; 
+  sval_u v86; 
+  sval_u v87; 
+  sval_u v88; 
+  sval_u v89; 
+  sval_u v90; 
+  scr_string_t v91; 
+  unsigned int v92; 
+  sval_u v93; 
+  sval_u v94; 
+  sval_u v95; 
+  sval_u v96; 
+  sval_u v97; 
+  scr_string_t v98; 
+  unsigned int v99; 
+  sval_u v100; 
+  sval_u v101; 
+  sval_u v102; 
+  scr_string_t v103; 
+  unsigned int v104; 
+  sval_u v105; 
+  scr_string_t v106; 
+  unsigned int v107; 
+  sval_u v108; 
+  sval_u v109; 
+  sval_u v110; 
+  sval_u v111; 
+  sval_u v112; 
+  sval_u v113; 
+  sval_u v114; 
+  sval_u v115; 
+  sval_u v116; 
+  sval_u v117; 
+  sval_u v118; 
+  sval_u v119; 
+  sval_u v120; 
+  int v121; 
+  sval_u v122; 
+  sval_u v123; 
+  sval_u v124; 
+  sval_u v125; 
+  sval_u v126; 
+  sval_u v127; 
+  sval_u v128; 
+  sval_u v129; 
+  sval_u v130; 
+  sval_u v131; 
+  sval_u v132; 
+  sval_u v133; 
+  sval_u v134; 
+  sval_u v135; 
+  sval_u v136; 
+  sval_u v137; 
+  sval_u v138; 
+  sval_u v139; 
+  sval_u v140; 
+  sval_u v141; 
+  sval_u v142; 
+  sval_u v143; 
+  sval_u v144; 
+  sval_u v145; 
+  sval_u v146; 
+  sval_u v147; 
+  sval_u val6; 
+  sval_u v149; 
+  sval_u v150; 
+  sval_u v151; 
+  sval_u v152; 
+  sval_u v153; 
+  sval_u v154; 
+  sval_u v155; 
+  sval_u v156; 
+  sval_u v157; 
+  sval_u v158; 
+  sval_u v159; 
+  sval_u v160; 
+  sval_u v161; 
+  sval_u v162; 
+  sval_u v163; 
+  sval_u v164; 
+  sval_u v165; 
+  sval_u v166; 
+  sval_u v167; 
+  sval_u v168; 
+  sval_u v169; 
+  sval_u v170; 
+  sval_u appended; 
+  sval_u v172; 
+  sval_u v173; 
+  sval_u v174; 
+  sval_u v175; 
+  sval_u v176; 
+  sval_u v177; 
+  sval_u v178; 
+  sval_u v179; 
+  sval_u v180; 
+  sval_u v181; 
+  sval_u v182; 
+  sval_u v183; 
+  sval_u v184; 
+  sval_u v185; 
+  sval_u v186; 
+  sval_u v187; 
+  sval_u v188; 
+  sval_u v189; 
+  scr_string_t v190; 
+  unsigned int v191; 
+  sval_u v192; 
+  sval_u v193; 
+  sval_u v194; 
+  sval_u v195; 
+  sval_u v196; 
+  sval_u v197; 
+  sval_u CurrentExtFilename; 
+  sval_u v199; 
+  sval_u v200; 
+  sval_u v201; 
+  sval_u v202; 
+  __int64 v204; 
+  int v205; 
+  __int64 v206; 
+  unsigned __int64 v207; 
+  __int16 v208; 
+  unsigned int v210; 
+  __int64 v211; 
+  sval_u val7; 
+  sval_u val8; 
+  __int128 v214; 
+  int v215; 
+  sval_u *v216; 
+  int v217; 
+  __int128 *v218; 
+  int v219; 
+  __int16 *v220; 
+  sval_u val1; 
+  __int128 *v222; 
+  sval_u valueExpr; 
+  unsigned __int64 v224; 
+  char v225[3200]; 
+  char dest[64]; 
+  char v227[400]; 
+
+  v0 = (__int128 *)v227;
+  v1 = v225;
+  v222 = (__int128 *)v227;
+  v2 = 200;
+  v218 = (__int128 *)v225;
+  v217 = 200;
+  v215 = 0;
+  v3 = 0i64;
+  yynerrs = 0;
+  v4 = 0;
+  DWORD2(v214) = 0;
+  yychar = -2;
+  _R13 = (sval_u *)v225;
+  v6 = (__int16 *)&v211 + 1719;
+  while ( 2 )
+  {
+    while ( 2 )
+    {
+      v216 = _R13;
+      while ( 1 )
+      {
+        v220 = ++v6;
+        *v6 = v3;
+        if ( v6 >= (__int16 *)v0 + v2 - 1 )
+        {
+          v7 = v1;
+          v8 = v0;
+          if ( v6 < (__int16 *)v0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bison.simple", 547, ASSERT_TYPE_ASSERT, "(yyssp >= yyss)", (const char *)&queryFormat, "yyssp >= yyss") )
+            __debugbreak();
+          v9 = (((char *)v6 - (char *)v0) >> 1) + 1;
+          if ( (unsigned __int64)(v9 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v9, "signed", v9) )
+            __debugbreak();
+          if ( v2 >= 10000 )
+          {
+            if ( yychar )
+            {
+              if ( yychar != 257 )
+              {
+                v210 = 0;
+                if ( g_sourcePos != -1 )
+                  v210 = g_sourcePos;
+                CompileError(g_pScrCompileContext, v210, "bad syntax");
+                Scr_Error(COM_ERR_1495, g_pScrCompileContext, "bad syntax");
+              }
+              return 2i64;
+            }
+            else
+            {
+              CompileError(g_pScrCompileContext, g_sourcePos, "unexpected end of file found");
+              return 2i64;
+            }
+          }
+          v2 *= 2;
+          if ( v2 > 10000 )
+            v2 = 10000;
+          v217 = v2;
+          v10 = 2i64 * v2;
+          v11 = v10 + 15;
+          if ( v10 + 15 <= v10 )
+            v11 = 0xFFFFFFFFFFFFFF0i64;
+          v12 = alloca(v11 & 0xFFFFFFFFFFFFFFF0ui64);
+          v13 = 2 * v9;
+          v0 = &v214;
+          v222 = &v214;
+          v14 = &v214;
+          if ( 2 * (int)v9 > 0 )
+          {
+            v15 = (char *)v8 - (char *)&v214;
+            do
+            {
+              --v13;
+              *(_BYTE *)v14 = *((_BYTE *)v14 + v15);
+              v14 = (__int128 *)((char *)v14 + 1);
+            }
+            while ( v13 > 0 );
+          }
+          v16 = 16i64 * v2;
+          v17 = v16 + 15;
+          if ( v16 + 15 <= v16 )
+            v17 = 0xFFFFFFFFFFFFFF0i64;
+          v18 = alloca(v17 & 0xFFFFFFFFFFFFFFF0ui64);
+          v19 = 16 * v9;
+          v218 = &v214;
+          v20 = &v214;
+          if ( 16 * (int)v9 > 0 )
+          {
+            v21 = v7 - (char *)&v214;
+            do
+            {
+              --v19;
+              *(_BYTE *)v20 = *((_BYTE *)v20 + v21);
+              v20 = (__int128 *)((char *)v20 + 1);
+            }
+            while ( v19 > 0 );
+          }
+          v22 = (int)v9;
+          v6 = (__int16 *)&v214 + (int)v9 - 1;
+          v220 = v6;
+          _R13 = (sval_u *)(&v214 + v22 - 1);
+          v216 = _R13;
+          if ( v6 >= (__int16 *)((char *)&v214 + v10 - 2) )
+            return 1i64;
+          v4 = v215;
+        }
+        v23 = yypact[v3];
+        v24 = yychar;
+        if ( v23 != -32768 )
+        {
+          if ( yychar == -2 )
+          {
+            v24 = yylex();
+            yychar = v24;
+          }
+          if ( v24 > 0 )
+          {
+            v25 = (unsigned int)v24 > 0x162 ? 130 : yytranslate[v24];
+          }
+          else
+          {
+            v24 = 0;
+            v25 = 0;
+            yychar = 0;
+          }
+          v26 = v25 + v23;
+          if ( v26 <= 0x643 )
+          {
+            v27 = (int)v26;
+            if ( yycheck[v27] == v25 )
+              break;
+          }
+        }
+        v29 = yydefact[v3];
+        if ( !yydefact[v3] )
+          goto $yyerrlab;
+$yyreduce:
+        v224 = 2i64 * v29;
+        v30 = yyr2[v224 / 2];
+        v219 = v30;
+        if ( v30 > 0 )
+        {
+          _RCX = 2i64 * (1 - v30);
+          __asm
+          {
+            vmovups xmm0, xmmword ptr [r13+rcx*8+0]
+            vmovups [rbp+0EE0h+var_EE0], xmm0
+          }
+        }
+        switch ( v29 )
+        {
+          case 1:
+            yaccResult = node2_(_R13[-2], *_R13);
+            break;
+          case 2:
+            yaccResult = node1(74, *_R13);
+            break;
+          case 3:
+          case 4:
+            yaccResult = node1(94, *_R13);
+            break;
+          case 5:
+            v39 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node2(7, *_R13, v39);
+            goto LABEL_208;
+          case 6:
+            val5 = node_pos(_R13[-1].canonicalString);
+            v42 = node_pos(_R13[1].canonicalString);
+            v43 = node_pos(_R13[-3].canonicalString);
+            v44 = 55;
+            goto LABEL_76;
+          case 7:
+            val5 = node_pos(_R13[-1].canonicalString);
+            v42 = node_pos(_R13[1].canonicalString);
+            v43 = node_pos(_R13[-3].canonicalString);
+            v44 = 56;
+LABEL_76:
+            *(sval_u *)&v214 = node5(v44, _R13[-4], *_R13, v43, v42, val5);
+            DWORD2(v214) = _R13[-1].type;
+            break;
+          case 8:
+            v45 = node_pos(_R13[-1].canonicalString);
+            v46 = 15;
+            goto LABEL_79;
+          case 9:
+            v45 = node_pos(_R13[-1].canonicalString);
+            v46 = 153;
+            goto LABEL_79;
+          case 10:
+            v45 = node_pos(_R13[-1].canonicalString);
+            v46 = 144;
+            goto LABEL_79;
+          case 11:
+            v45 = node_pos(_R13[-1].canonicalString);
+            v46 = 16;
+            goto LABEL_79;
+          case 12:
+            v45 = node_pos(_R13[-1].canonicalString);
+            v46 = 151;
+            goto LABEL_79;
+          case 13:
+            v45 = node_pos(_R13[-1].canonicalString);
+            v46 = 118;
+            goto LABEL_79;
+          case 14:
+            v45 = node_pos(_R13[-1].canonicalString);
+            v46 = 10;
+            goto LABEL_79;
+          case 15:
+            v45 = node_pos(_R13[-1].canonicalString);
+            v46 = 61;
+            goto LABEL_79;
+          case 16:
+            v45 = node_pos(_R13[-1].canonicalString);
+            v46 = 83;
+            goto LABEL_79;
+          case 17:
+            v45 = node_pos(_R13[-1].canonicalString);
+            v46 = 45;
+            goto LABEL_79;
+          case 18:
+            v45 = node_pos(_R13[-1].canonicalString);
+            v46 = 12;
+            goto LABEL_79;
+          case 19:
+            v45 = node_pos(_R13[-1].canonicalString);
+            v46 = 2;
+            goto LABEL_79;
+          case 20:
+            v45 = node_pos(_R13[-1].canonicalString);
+            v46 = 78;
+            goto LABEL_79;
+          case 21:
+            v45 = node_pos(_R13[-1].canonicalString);
+            v46 = 139;
+            goto LABEL_79;
+          case 22:
+            v45 = node_pos(_R13[-1].canonicalString);
+            v46 = 136;
+            goto LABEL_79;
+          case 23:
+            v45 = node_pos(_R13[-1].canonicalString);
+            v46 = 100;
+LABEL_79:
+            v47 = v45;
+            v48 = node1_(v46);
+            *(sval_u *)&v214 = node4(57, _R13[-4], *_R13, v48, v47);
+            DWORD2(v214) = _R13[-1].type;
+            break;
+          case 24:
+            v49 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node2(58, *_R13, v49);
+            goto LABEL_208;
+          case 25:
+            v50 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node2(59, *_R13, v50);
+            goto LABEL_208;
+          case 26:
+            ArrayStatement = node1(74, *_R13);
+            goto LABEL_208;
+          case 27:
+          case 106:
+          case 118:
+          case 127:
+            ArrayStatement = node0(0);
+            goto LABEL_208;
+          case 28:
+          case 29:
+            _R13->type = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
+            ArrayStatement = *_R13;
+            goto LABEL_208;
+          case 30:
+            v51 = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
+            canonicalString = _R13[-3].canonicalString;
+            _R13->type = v51;
+            v53 = node_pos(canonicalString);
+            v54 = node3(24, _R13[-4], *_R13, v53);
+            goto LABEL_101;
+          case 31:
+            v55 = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
+            v56 = _R13[1].canonicalString;
+            goto LABEL_103;
+          case 32:
+            v58 = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
+            v59 = _R13[-3].canonicalString;
+            _R13->type = v58;
+            v60 = node_pos(v59);
+            *(sval_u *)&v214 = node3(24, _R13[-4], *_R13, v60);
+            DWORD2(v214) = _R13[-1].type;
+            ++g_pScrCompileContext->m_compilePub.far_function_count;
+            break;
+          case 33:
+            v55 = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
+            v56 = _R13[-1].canonicalString;
+LABEL_103:
+            _R13->type = v55;
+            v57 = node_pos(v56);
+            ArrayStatement = node2(23, *_R13, v57);
+            goto LABEL_208;
+          case 34:
+          case 61:
+            v61 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node2(21, *_R13, v61);
+            goto LABEL_208;
+          case 35:
+            v62 = node_pos(_R13[-3].canonicalString);
+            ArrayStatement = node2(25, _R13[-4], v62);
+            goto LABEL_208;
+          case 36:
+            v63 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node2(29, *_R13, v63);
+            goto LABEL_208;
+          case 37:
+            v64 = node_pos(_R13[1].canonicalString);
+            v65 = node_pos(_R13[-1].canonicalString);
+            *(sval_u *)&v214 = node3(33, *_R13, v65, v64);
+            DWORD2(v214) = _R13[1].type;
+            break;
+          case 38:
+            v66 = node_pos(_R13[1].canonicalString);
+            v67 = node_pos(_R13[-1].canonicalString);
+            *(sval_u *)&v214 = node3(34, *_R13, v67, v66);
+            DWORD2(v214) = _R13[1].type;
+            break;
+          case 39:
+            v68 = node_pos(_R13[-3].canonicalString);
+            *(sval_u *)&v214 = node2(35, _R13[-4], v68);
+            DWORD2(v214) = _R13[-3].type;
+            break;
+          case 40:
+            v69 = node_pos(_R13[-3].canonicalString);
+            *(sval_u *)&v214 = node3(26, _R13[-6], _R13[-2], v69);
+            DWORD2(v214) = _R13[-3].type;
+            break;
+          case 41:
+            v70 = node_pos(_R13[-3].canonicalString);
+            v71 = node_pos(_R13[-7].canonicalString);
+            *(sval_u *)&v214 = node5(27, _R13[-8], _R13[-6], _R13[-2], v71, v70);
+            DWORD2(v214) = _R13[-3].type;
+            break;
+          case 42:
+            v72 = node_pos(_R13[-3].canonicalString);
+            v73 = node_reverse_list(_R13[-2]);
+            ArrayStatement = node2(75, v73, v72);
+            goto LABEL_208;
+          case 43:
+            v74 = node_pos(_R13[-3].canonicalString);
+            ArrayStatement = node2(54, _R13[-2], v74);
+            goto LABEL_208;
+          case 44:
+            v75 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node2(9, *_R13, v75);
+            goto LABEL_208;
+          case 45:
+            v76 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node2(10, *_R13, v76);
+            goto LABEL_208;
+          case 46:
+            v77 = node_pos(_R13[-1].canonicalString);
+            ArrayStatement = node2(11, *_R13, v77);
+            goto LABEL_208;
+          case 47:
+            v78 = node_pos(_R13[-1].canonicalString);
+            ArrayStatement = node2(12, *_R13, v78);
+            goto LABEL_208;
+          case 48:
+            v79 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node2(13, *_R13, v79);
+            goto LABEL_208;
+          case 49:
+            v80 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node2(14, *_R13, v80);
+            goto LABEL_208;
+          case 50:
+            v81 = node_pos(_R13[-1].canonicalString);
+            ArrayStatement = node2(36, _R13[-2], v81);
+            goto LABEL_208;
+          case 51:
+            v82 = node_pos(_R13[-1].canonicalString);
+            ArrayStatement = node2(37, _R13[-2], v82);
+            goto LABEL_208;
+          case 52:
+            ArrayStatement = node1(22, *_R13);
+            goto LABEL_208;
+          case 53:
+            v83 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node2(20, *_R13, v83);
+            goto LABEL_208;
+          case 54:
+            v84 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node1(38, v84);
+            goto LABEL_208;
+          case 55:
+            v85 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node1(39, v85);
+            goto LABEL_208;
+          case 56:
+            v86 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node1(41, v86);
+            goto LABEL_208;
+          case 57:
+            v87 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node1(42, v87);
+            goto LABEL_208;
+          case 58:
+            v88 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node1(43, v88);
+            goto LABEL_208;
+          case 59:
+            v89 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node1(44, v89);
+            goto LABEL_208;
+          case 60:
+            v90 = node_pos(_R13[-1].canonicalString);
+            *(sval_u *)&v214 = node2(60, _R13[-2], v90);
+            DWORD2(v214) = _R13[1].type;
+            break;
+          case 63:
+          case 64:
+            v91 = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
+            v92 = _R13[1].canonicalString;
+            _R13->type = v91;
+            v93 = node_pos(v92);
+            ArrayStatement = node2(76, *_R13, v93);
+            goto LABEL_208;
+          case 65:
+            v94 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node1(81, v94);
+            goto LABEL_208;
+          case 66:
+            v95 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node1(82, v95);
+            goto LABEL_208;
+          case 67:
+            v96 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node1(83, v96);
+            goto LABEL_208;
+          case 68:
+            v97 = node_pos(_R13[-5].canonicalString);
+            ArrayStatement = node3(84, _R13[-8], _R13[-2], v97);
+            goto LABEL_208;
+          case 69:
+            v98 = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
+            v99 = _R13[-3].canonicalString;
+            _R13->type = v98;
+            v100 = node_pos(v99);
+            *(sval_u *)&v214 = node3(17, _R13[-4], *_R13, v100);
+            DWORD2(v214) = _R13[1].type;
+            break;
+          case 70:
+            v101 = node_pos(_R13[-1].canonicalString);
+            v102 = node_pos(_R13[-5].canonicalString);
+            *(sval_u *)&v214 = node4(15, _R13[-6], _R13[-2], v102, v101);
+            DWORD2(v214) = _R13[-3].type;
+            break;
+          case 71:
+            v103 = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
+            v104 = _R13[1].canonicalString;
+            _R13->type = v103;
+            v105 = node_pos(v104);
+            ArrayStatement = node2(5, *_R13, v105);
+            goto LABEL_208;
+          case 72:
+            v106 = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
+            v107 = _R13[-1].canonicalString;
+            _R13->type = v106;
+            v108 = node_pos(v107);
+            ArrayStatement = node2(91, *_R13, v108);
+            goto LABEL_208;
+          case 73:
+            v109 = node_pos(_R13[-3].canonicalString);
+            *(sval_u *)&v214 = node2(61, _R13[-4], v109);
+            DWORD2(v214) = _R13[1].type;
+            break;
+          case 74:
+            v110 = node_pos(_R13[1].canonicalString);
+            v111 = node_pos(_R13[-1].canonicalString);
+            ArrayStatement = node4(2, _R13[-4], *_R13, v111, v110);
+            goto LABEL_208;
+          case 75:
+            v112 = node_pos(_R13[1].canonicalString);
+            v113 = node_pos(_R13[-3].canonicalString);
+            ArrayStatement = Scr_CreateExtractArrayStatement(_R13[-4], *_R13, v113, v112);
+            goto LABEL_208;
+          case 76:
+            v114 = node_pos(_R13[-1].canonicalString);
+            ArrayStatement = node2(30, *_R13, v114);
+            goto LABEL_208;
+          case 77:
+            v115 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node1(31, v115);
+            goto LABEL_208;
+          case 78:
+            v116 = node_pos(_R13[-1].canonicalString);
+            v117 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node3(32, *_R13, v117, v116);
+            goto LABEL_208;
+          case 79:
+            v118 = node_pos(_R13[-1].canonicalString);
+            ArrayStatement = node2(49, _R13[-2], v118);
+            goto LABEL_208;
+          case 80:
+            v119 = node_pos(_R13[-1].canonicalString);
+            ArrayStatement = node2(50, _R13[-2], v119);
+            goto LABEL_208;
+          case 81:
+            v120 = node_pos(_R13[-1].canonicalString);
+            v121 = 15;
+            goto LABEL_151;
+          case 82:
+            v120 = node_pos(_R13[-1].canonicalString);
+            v121 = 153;
+            goto LABEL_151;
+          case 83:
+            v120 = node_pos(_R13[-1].canonicalString);
+            v121 = 144;
+            goto LABEL_151;
+          case 84:
+            v120 = node_pos(_R13[-1].canonicalString);
+            v121 = 45;
+            goto LABEL_151;
+          case 85:
+            v120 = node_pos(_R13[-1].canonicalString);
+            v121 = 12;
+            goto LABEL_151;
+          case 86:
+            v120 = node_pos(_R13[-1].canonicalString);
+            v121 = 2;
+            goto LABEL_151;
+          case 87:
+            v120 = node_pos(_R13[-1].canonicalString);
+            v121 = 78;
+            goto LABEL_151;
+          case 88:
+            v120 = node_pos(_R13[-1].canonicalString);
+            v121 = 139;
+            goto LABEL_151;
+          case 89:
+            v120 = node_pos(_R13[-1].canonicalString);
+            v121 = 136;
+            goto LABEL_151;
+          case 90:
+            v120 = node_pos(_R13[-1].canonicalString);
+            v121 = 100;
+LABEL_151:
+            v122 = v120;
+            v123 = node1_(v121);
+            ArrayStatement = node4(51, _R13[-4], *_R13, v123, v122);
+            goto LABEL_208;
+          case 91:
+            v124 = node_pos(_R13[-5].canonicalString);
+            v125 = node_pos(_R13[-7].canonicalString);
+            ArrayStatement = node4(63, _R13[-8], _R13[-2], v125, v124);
+            goto LABEL_208;
+          case 92:
+            v126 = node_pos(_R13[-5].canonicalString);
+            v127 = node_pos(_R13[-7].canonicalString);
+            ArrayStatement = node4(64, _R13[-8], _R13[-2], v127, v126);
+            goto LABEL_208;
+          case 93:
+            v128 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node1(65, v128);
+            goto LABEL_208;
+          case 94:
+            v129 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node1(66, v129);
+            goto LABEL_208;
+          case 95:
+            v130 = node_pos(_R13[-5].canonicalString);
+            v131 = node_pos(_R13[-7].canonicalString);
+            ArrayStatement = node4(67, _R13[-8], _R13[-2], v131, v130);
+            goto LABEL_208;
+          case 96:
+            v132 = node_pos(_R13[-1].canonicalString);
+            v133 = node_pos(_R13[-7].canonicalString);
+            ArrayStatement = node4(68, _R13[-8], _R13[-2], v133, v132);
+            goto LABEL_208;
+          case 97:
+            v134 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node1(72, v134);
+            goto LABEL_208;
+          case 98:
+            v135 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node1(73, v135);
+            goto LABEL_208;
+          case 99:
+            v136 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node1(85, v136);
+            goto LABEL_208;
+          case 100:
+            v137 = node_pos(_R13[-5].canonicalString);
+            ArrayStatement = node2(86, _R13[-2], v137);
+            goto LABEL_208;
+          case 101:
+            v138 = node_pos(_R13[-9].canonicalString);
+            ArrayStatement = node3(88, _R13[-6], _R13[-2], v138);
+            goto LABEL_208;
+          case 102:
+            v139 = node_pos(_R13[-5].canonicalString);
+            ArrayStatement = node2(87, _R13[-2], v139);
+            goto LABEL_208;
+          case 103:
+            v140 = node_pos(_R13[-9].canonicalString);
+            ArrayStatement = node3(89, _R13[-6], _R13[-2], v140);
+            goto LABEL_208;
+          case 104:
+            ArrayStatement = node1(28, *_R13);
+            goto LABEL_208;
+          case 109:
+            v141 = node_pos(_R13[1].canonicalString);
+            v142 = node_pos(_R13[-3].canonicalString);
+            ArrayStatement = node3(52, _R13[-2], v142, v141);
+            goto LABEL_208;
+          case 110:
+            v143 = node_pos(_R13[-3].canonicalString);
+            ArrayStatement = node4(45, _R13[-4], *_R13, v143, g_dummyVal);
+            goto LABEL_208;
+          case 111:
+            v144 = node_pos(_R13[-1].canonicalString);
+            v145 = node_pos(_R13[-7].canonicalString);
+            ArrayStatement = node7(46, _R13[-8], _R13[-4], *_R13, v145, v144, g_dummyVal, g_dummyVal);
+            goto LABEL_208;
+          case 112:
+            v146 = node_pos(_R13[-7].canonicalString);
+            v147 = node_pos(_R13[-3].canonicalString);
+            ArrayStatement = node5(47, _R13[-4], *_R13, v147, v146, g_dummyVal);
+            goto LABEL_208;
+          case 113:
+            val6 = node_pos(_R13[-13].canonicalString);
+            v149 = node_pos(_R13[-7].canonicalString);
+            ArrayStatement = node8(48, _R13[-10], _R13[-8], _R13[-4], *_R13, v149, val6, g_dummyVal, g_dummyVal);
+            goto LABEL_208;
+          case 114:
+            v150 = node_pos(_R13[-1].canonicalString);
+            v151 = node_pos(_R13[-5].canonicalString);
+            v152 = node_pos(_R13[-3].canonicalString);
+            v153 = node_pos(_R13[-11].canonicalString);
+            v154 = node_pos(_R13[-15].canonicalString);
+            v155 = *_R13;
+            v156 = _R13[-4];
+            v157 = _R13[-8];
+            v158 = _R13[-12];
+            val8 = v150;
+            val7 = v151;
+            ArrayStatement = Scr_CreateForEachStatement(v158, v157, v156, v155, v154, v153, v152);
+            goto LABEL_208;
+          case 115:
+            v159 = node_pos(_R13[-1].canonicalString);
+            v160 = node_pos(_R13[-5].canonicalString);
+            v161 = node_pos(_R13[-3].canonicalString);
+            v162 = node_pos(_R13[-11].canonicalString);
+            v163 = *_R13;
+            v164 = v162;
+            v165 = _R13[-4];
+            valueExpr = v216[-8];
+            if ( !g_pScrCompileContext && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scr_yacc.txt", 207, ASSERT_TYPE_ASSERT, "( g_pScrCompileContext )", (const char *)&queryFormat, "g_pScrCompileContext") )
+              __debugbreak();
+            if ( !g_pScrCompileContext->m_compilePub.parseBuf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scr_yacc.txt", 208, ASSERT_TYPE_ASSERT, "( g_pScrCompileContext->m_compilePub.parseBuf )", (const char *)&queryFormat, "g_pScrCompileContext->m_compilePub.parseBuf") )
+              __debugbreak();
+            Com_sprintf(dest, 0x40ui64, ":%i", g_tempVarIndex);
+            ++g_tempVarIndex;
+            val1.type = j_SL_GetString_(dest, g_parse_user, 16);
+            SL_AddRefToString(val1.stringValue);
+            v166 = node2(5, val1, v161);
+            val8 = v159;
+            val7 = v160;
+            v167 = v166;
+            val1 = v166;
+            v168 = Scr_CreateForEachStatement(v166, valueExpr, v165, v163, v164, v164, v161);
+            v169 = node0(0);
+            v170 = linked_list_end(v169);
+            appended = append_node(v170, v168);
+            v172 = node1(3, v167);
+            v173 = append_node(appended, v172);
+            ArrayStatement = node3(52, v173, v164, v164);
+            _R13 = v216;
+            v6 = v220;
+            v2 = v217;
+            goto LABEL_208;
+          case 116:
+            v174 = node_pos(_R13[-7].canonicalString);
+            ArrayStatement = node3(69, _R13[-8], _R13[-2], v174);
+            goto LABEL_208;
+          case 117:
+            v175 = node_pos(_R13[1].canonicalString);
+            v176 = node_pos(_R13[-3].canonicalString);
+            ArrayStatement = node4(53, _R13[-2], v176, g_dummyVal, v175);
+            goto LABEL_208;
+          case 119:
+            v177 = node_pos(_R13[-3].canonicalString);
+            ArrayStatement = node3(70, _R13[-2], v177, g_dummyVal);
+            goto LABEL_208;
+          case 120:
+            v178 = node_pos(_R13[-1].canonicalString);
+            ArrayStatement = node2(71, v178, g_dummyVal);
+            goto LABEL_208;
+          case 122:
+            ArrayStatement = append_node(_R13[-2], *_R13);
+            goto LABEL_208;
+          case 123:
+          case 131:
+          case 144:
+          case 147:
+            v202 = node0(0);
+            ArrayStatement = linked_list_end(v202);
+            goto LABEL_208;
+          case 124:
+          case 136:
+            v179 = node_pos(_R13[1].canonicalString);
+            v180 = node2_(*_R13, v179);
+            ArrayStatement = prepend_node(v180, _R13[-4]);
+            goto LABEL_208;
+          case 125:
+          case 137:
+            v181 = node0(0);
+            v182 = node_pos(_R13[1].canonicalString);
+            v183 = node2_(*_R13, v182);
+            ArrayStatement = prepend_node(v183, v181);
+            goto LABEL_208;
+          case 128:
+          case 132:
+            _R13->type = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
+            goto $LN164;
+          case 129:
+            _R13->type = j_SL_ConvertToLowercase(_R13->stringValue, g_parse_user, 16);
+            goto $LN163_0;
+          case 133:
+          case 135:
+$LN163_0:
+            v186 = node_pos(_R13[1].canonicalString);
+            v187 = node2_(*_R13, v186);
+            v188 = node0(0);
+            v189 = linked_list_end(v188);
+            ArrayStatement = append_node(v189, v187);
+            goto LABEL_208;
+          case 134:
+$LN164:
+            v184 = node_pos(_R13[1].canonicalString);
+            v185 = node2_(*_R13, v184);
+            ArrayStatement = append_node(_R13[-4], v185);
+            goto LABEL_208;
+          case 138:
+            Scr_NotAllowedInline(_R13[-11].canonicalString);
+            v190 = j_SL_ConvertToLowercase(_R13[-12].stringValue, g_parse_user, 16);
+            v191 = _R13[1].canonicalString;
+            _R13[-12].type = v190;
+            v192 = node_pos(v191);
+            v193 = node_pos(_R13[-11].canonicalString);
+            ArrayStatement = node6(77, _R13[-12], _R13[-8], _R13[-2], v193, v192, g_dummyVal);
+            goto LABEL_208;
+          case 139:
+            Scr_NotAllowedInline(_R13[-7].canonicalString);
+            v194 = node_pos(_R13[-3].canonicalString);
+            v195 = node_pos(_R13[-7].canonicalString);
+            ArrayStatement = node3(80, _R13[-4], v195, v194);
+            goto LABEL_208;
+          case 140:
+            Scr_NotAllowedInline(_R13[1].canonicalString);
+            v196 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node1(78, v196);
+            goto LABEL_208;
+          case 141:
+            Scr_NotAllowedInline(_R13[1].canonicalString);
+            v197 = node_pos(_R13[1].canonicalString);
+            ArrayStatement = node1(79, v197);
+            goto LABEL_208;
+          case 142:
+            _R13[-6].type = j_SL_ConvertToLowercase(_R13[-6].stringValue, g_parse_user, 16);
+            CurrentExtFilename = Scr_GetCurrentExtFilename();
+            v199 = node_pos(_R13[-1].canonicalString);
+            v200 = node_pos(_R13[-5].canonicalString);
+            ArrayStatement = node5(99, _R13[-6], _R13[-2], v200, v199, CurrentExtFilename);
+            goto LABEL_208;
+          case 143:
+            *(sval_u *)&v214 = append_node(_R13[-2], *_R13);
+            g_tempVarIndex = 0;
+            break;
+          case 145:
+            v201 = node_pos(_R13[-1].canonicalString);
+            v54 = node2(97, *_R13, v201);
+LABEL_101:
+            *(sval_u *)&v214 = v54;
+            ++g_pScrCompileContext->m_compilePub.far_function_count;
+            break;
+          case 146:
+            ArrayStatement = append_node(_R13[-4], _R13[-2]);
+LABEL_208:
+            *(sval_u *)&v214 = ArrayStatement;
+            break;
+          default:
+            break;
+        }
+        __asm { vmovups xmm0, [rbp+0EE0h+var_EE0] }
+        v6 -= v219;
+        _R13 = (sval_u *)((char *)_R13 + 16 - 16i64 * v219);
+        v216 = _R13;
+        v204 = yyr1[v224 / 2];
+        __asm { vmovups xmmword ptr [r13+0], xmm0 }
+        v205 = *v6;
+        v206 = 2 * v204 - 202;
+        v207 = v205 + *(const __int16 *)((char *)yypgoto + v206);
+        if ( v207 <= 0x643 && yycheck[v207] == (_WORD)v205 )
+        {
+          v0 = v222;
+          v1 = (char *)v218;
+          v4 = v215;
+          v3 = yytable[v207];
+        }
+        else
+        {
+          v208 = *(const __int16 *)((char *)yydefgoto + v206);
+          v0 = v222;
+          v1 = (char *)v218;
+          v4 = v215;
+          v3 = v208;
+        }
+      }
+      v28 = yytable[v27];
+      if ( (int)v28 < 0 )
+      {
+        if ( (_DWORD)v28 == -32768 )
+          break;
+        v29 = -(int)v28;
+        goto $yyreduce;
+      }
+      if ( yytable[v27] )
+      {
+        if ( (_DWORD)v28 == 305 )
+          return 0i64;
+        __asm { vmovups xmm0, xmmword ptr cs:?yylval@@3Ustype_t@@A.val; stype_t yylval }
+        v1 = (char *)v218;
+        v3 = v28;
+        if ( v24 )
+          v24 = -2;
+        _R13 += 2;
+        yychar = v24;
+        v34 = v4 - 1;
+        if ( !v4 )
+          v34 = 0;
+        v4 = v34;
+        v215 = v34;
+        __asm { vmovups xmmword ptr [r13+0], xmm0 }
+        continue;
+      }
+      break;
+    }
+$yyerrlab:
+    if ( v4 )
+    {
+      if ( v4 == 3 )
+      {
+        if ( !v24 )
+          return 1i64;
+        yychar = -2;
+      }
+    }
+    else
+    {
+      ++yynerrs;
+      if ( v24 )
+      {
+        if ( v24 != 257 )
+        {
+          v35 = 0;
+          if ( g_sourcePos != -1 )
+            v35 = g_sourcePos;
+          CompileError(g_pScrCompileContext, v35, "bad syntax", 0i64);
+          Scr_Error(COM_ERR_1495, g_pScrCompileContext, "bad syntax");
+        }
+      }
+      else
+      {
+        CompileError(g_pScrCompileContext, g_sourcePos, "unexpected end of file found", 0i64);
+      }
+    }
+    v4 = 3;
+    v215 = 3;
+    while ( 2 )
+    {
+      v36 = yypact[v3];
+      if ( (_DWORD)v36 == -32768 || (unsigned int)(v36 + 1) > 0x643 || yycheck[v36 + 1] != 1 )
+        goto $yyerrdefault;
+      v37 = yytable[v36 + 1];
+      if ( v37 < 0 )
+      {
+        if ( v37 != -32768 )
+        {
+          v29 = -v37;
+          goto $yyreduce;
+        }
+        goto $yyerrdefault;
+      }
+      if ( !yytable[v36 + 1] )
+      {
+$yyerrdefault:
+        if ( v6 == (__int16 *)v0 )
+          return 1i64;
+        v3 = *(v6 - 1);
+        _R13 -= 2;
+        --v6;
+        v216 = _R13;
+        v220 = v6;
+        continue;
+      }
+      break;
+    }
+    if ( v37 != 305 )
+    {
+      __asm { vmovups xmm0, xmmword ptr cs:?yylval@@3Ustype_t@@A.val; stype_t yylval }
+      v1 = (char *)v218;
+      _R13 += 2;
+      v3 = yytable[v36 + 1];
+      __asm { vmovups xmmword ptr [r13+0], xmm0 }
+      continue;
+    }
+    return 0i64;
+  }
+}
+

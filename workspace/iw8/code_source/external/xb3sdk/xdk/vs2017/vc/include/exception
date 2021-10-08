@@ -1,0 +1,286 @@
+/*
+==============
+stdext::bad_alloc::_Doraise
+==============
+*/
+
+void __fastcall __noreturn stdext::bad_alloc::_Doraise(stdext::bad_alloc *this)
+{
+  ?_Doraise@bad_alloc@stdext@@MEBAXXZ(this);
+}
+
+/*
+==============
+std::exception_ptr::exception_ptr
+==============
+*/
+
+void __fastcall std::exception_ptr::exception_ptr(std::exception_ptr *this, const std::exception_ptr *_Rhs)
+{
+  ??0exception_ptr@std@@QEAA@AEBV01@@Z(this, _Rhs);
+}
+
+/*
+==============
+stdext::bad_alloc::bad_alloc
+==============
+*/
+
+void __fastcall stdext::bad_alloc::bad_alloc(stdext::bad_alloc *this)
+{
+  ??0bad_alloc@stdext@@QEAA@XZ(this);
+}
+
+/*
+==============
+stdext::bad_alloc::~bad_alloc
+==============
+*/
+
+void __fastcall stdext::bad_alloc::~bad_alloc(stdext::bad_alloc *this)
+{
+  ??1bad_alloc@stdext@@UEAA@XZ(this);
+}
+
+/*
+==============
+stdext::exception::_Raise
+==============
+*/
+
+void __fastcall __noreturn stdext::exception::_Raise(stdext::exception *this)
+{
+  ?_Raise@exception@stdext@@QEBAXXZ(this);
+}
+
+/*
+==============
+stdext::exception::_Doraise
+==============
+*/
+
+void __fastcall stdext::exception::_Doraise(stdext::exception *this)
+{
+  ?_Doraise@exception@stdext@@MEBAXXZ(this);
+}
+
+/*
+==============
+stdext::bad_alloc::bad_alloc
+==============
+*/
+
+void __fastcall stdext::bad_alloc::bad_alloc(stdext::bad_alloc *this, const stdext::bad_alloc *__that)
+{
+  ??0bad_alloc@stdext@@QEAA@AEBV01@@Z(this, __that);
+}
+
+/*
+==============
+stdext::exception::what
+==============
+*/
+
+const char *__fastcall stdext::exception::what(stdext::exception *this)
+{
+  return ?what@exception@stdext@@UEBAPEBDXZ(this);
+}
+
+/*
+==============
+std::rethrow_exception
+==============
+*/
+
+void __fastcall __noreturn std::rethrow_exception(std::exception_ptr *_Ptr)
+{
+  ?rethrow_exception@std@@YAXVexception_ptr@1@@Z(_Ptr);
+}
+
+/*
+==============
+std::exception_ptr::_RethrowException
+==============
+*/
+
+void __fastcall __noreturn std::exception_ptr::_RethrowException(std::exception_ptr *this)
+{
+  ?_RethrowException@exception_ptr@std@@QEBAXXZ(this);
+}
+
+/*
+==============
+stdext::exception::exception
+==============
+*/
+
+void __fastcall stdext::exception::exception(stdext::exception *this, const stdext::exception *_Right)
+{
+  ??0exception@stdext@@QEAA@AEBV01@@Z(this, _Right);
+}
+
+/*
+==============
+std::exception_ptr::~exception_ptr
+==============
+*/
+
+void __fastcall std::exception_ptr::~exception_ptr(std::exception_ptr *this)
+{
+  ??1exception_ptr@std@@QEAA@XZ(this);
+}
+
+/*
+==============
+stdext::exception::~exception
+==============
+*/
+
+void __fastcall stdext::exception::~exception(stdext::exception *this)
+{
+  ??1exception@stdext@@UEAA@XZ(this);
+}
+
+/*
+==============
+std::exception_ptr::exception_ptr
+==============
+*/
+void std::exception_ptr::exception_ptr(std::exception_ptr *this, const std::exception_ptr *_Rhs)
+{
+  __ExceptionPtrCopy(this, _Rhs);
+}
+
+/*
+==============
+stdext::exception::~exception
+==============
+*/
+void stdext::exception::~exception(stdext::exception *this)
+{
+  this->__vftable = (stdext::exception_vtbl *)&stdext::exception::`vftable';
+}
+
+/*
+==============
+std::exception_ptr::~exception_ptr
+==============
+*/
+void std::exception_ptr::~exception_ptr(std::exception_ptr *this)
+{
+  __ExceptionPtrDestroy(this);
+}
+
+/*
+==============
+stdext::exception::_Doraise
+==============
+*/
+void stdext::exception::_Doraise(stdext::exception *this)
+{
+  ;
+}
+
+/*
+==============
+stdext::exception::_Raise
+==============
+*/
+void __noreturn stdext::exception::_Raise(stdext::exception *this)
+{
+  if ( std::_Raise_handler )
+    std::_Raise_handler(this);
+  this->_Doraise(this);
+  _invoke_watson(NULL, NULL, NULL, 0, 0i64);
+}
+
+/*
+==============
+std::exception_ptr::_RethrowException
+==============
+*/
+void __noreturn std::exception_ptr::_RethrowException(std::exception_ptr *this)
+{
+  __ExceptionPtrRethrow(this);
+  JUMPOUT(0x14265EC19i64);
+}
+
+/*
+==============
+std::rethrow_exception
+==============
+*/
+void __noreturn std::rethrow_exception(std::exception_ptr *_Ptr)
+{
+  std::exception_ptr::_RethrowException(_Ptr);
+}
+
+/*
+==============
+stdext::exception::what
+==============
+*/
+const char *stdext::exception::what(stdext::exception *this)
+{
+  const char *result; 
+
+  result = "unknown exception";
+  if ( this->_Ptr )
+    return this->_Ptr;
+  return result;
+}
+
+/*
+==============
+stdext::exception::exception
+==============
+*/
+void stdext::exception::exception(stdext::exception *this, const stdext::exception *_Right)
+{
+  this->__vftable = (stdext::exception_vtbl *)&stdext::exception::`vftable';
+  this->_Ptr = _Right->_Ptr;
+}
+
+/*
+==============
+stdext::bad_alloc::bad_alloc
+==============
+*/
+void stdext::bad_alloc::bad_alloc(stdext::bad_alloc *this, const stdext::bad_alloc *__that)
+{
+  this->__vftable = (stdext::bad_alloc_vtbl *)&stdext::exception::`vftable';
+  this->_Ptr = __that->_Ptr;
+  this->__vftable = (stdext::bad_alloc_vtbl *)&stdext::bad_alloc::`vftable';
+}
+
+/*
+==============
+stdext::bad_alloc::bad_alloc
+==============
+*/
+void stdext::bad_alloc::bad_alloc(stdext::bad_alloc *this)
+{
+  this->_Ptr = "bad allocation";
+  this->__vftable = (stdext::bad_alloc_vtbl *)&stdext::bad_alloc::`vftable';
+}
+
+/*
+==============
+stdext::bad_alloc::~bad_alloc
+==============
+*/
+void stdext::bad_alloc::~bad_alloc(stdext::bad_alloc *this)
+{
+  this->__vftable = (stdext::bad_alloc_vtbl *)&stdext::exception::`vftable';
+}
+
+/*
+==============
+stdext::bad_alloc::_Doraise
+==============
+*/
+void __noreturn stdext::bad_alloc::_Doraise(stdext::bad_alloc *this)
+{
+  _invoke_watson(NULL, NULL, NULL, 0, 0i64);
+}
+

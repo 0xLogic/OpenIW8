@@ -1,0 +1,277 @@
+/*
+==============
+ScriptParse
+==============
+*/
+
+void __fastcall ScriptParse(sval_u *parseData, unsigned __int8 user)
+{
+  ?ScriptParse@@YAXPEATsval_u@@E@Z(parseData, user);
+}
+
+/*
+==============
+Scr_CreateExtractArrayStatement
+==============
+*/
+sval_u Scr_CreateExtractArrayStatement(sval_u arrayExpr, sval_u expr, sval_u lhsSourcePos, sval_u rhsSourcePos)
+{
+  sval_u v8; 
+  sval_u v9; 
+  sval_u v10; 
+  sval_u v11; 
+  int v12; 
+  sval_u appended; 
+  sval_u *i; 
+  sval_u *node; 
+  sval_u *v16; 
+  sval_u v17; 
+  sval_u v18; 
+  sval_u v19; 
+  sval_u v20; 
+  sval_u v21; 
+  sval_u v22; 
+  sval_u v23; 
+  sval_u v24; 
+  sval_u v25; 
+  sval_u v26; 
+  sval_u v27; 
+  sval_u v28; 
+  sval_u v29; 
+  sval_u v30; 
+  sval_u v31; 
+  sval_u v32; 
+  sval_u v34; 
+  sval_u val1; 
+  char dest[64]; 
+
+  if ( !g_pScrCompileContext && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scr_yacc.txt", 245, ASSERT_TYPE_ASSERT, "( g_pScrCompileContext )", (const char *)&queryFormat, "g_pScrCompileContext") )
+    __debugbreak();
+  if ( !g_pScrCompileContext->m_compilePub.parseBuf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scr_yacc.txt", 246, ASSERT_TYPE_ASSERT, "( g_pScrCompileContext->m_compilePub.parseBuf )", (const char *)&queryFormat, "g_pScrCompileContext->m_compilePub.parseBuf") )
+    __debugbreak();
+  Com_sprintf(dest, 0x40ui64, ":%i", g_tempVarIndex);
+  ++g_tempVarIndex;
+  val1.type = j_SL_GetString_(dest, g_parse_user, 16);
+  SL_AddRefToString(val1.stringValue);
+  v8 = node2(5, val1, rhsSourcePos);
+  v9 = node4(2, v8, expr, rhsSourcePos, rhsSourcePos);
+  v10 = node0(0);
+  v11 = linked_list_end(v10);
+  v12 = 0;
+  appended = append_node(v11, v9);
+  v34.type = 0;
+  for ( i = arrayExpr.node[1].node->node; i; appended = v26 )
+  {
+    node = i->node->node;
+    if ( node->type != 7 )
+      CompileError(g_pScrCompileContext, lhsSourcePos.canonicalString, "bad array extractor syntax");
+    v16 = node[1].node;
+    if ( v16->type != 20 )
+      CompileError(g_pScrCompileContext, lhsSourcePos.canonicalString, "bad array extractor syntax");
+    v17 = v16[1];
+    v18 = v17.node[2];
+    v19 = node2(9, v34, v18);
+    v34.type = ++v12;
+    v20 = node2(7, v19, v18);
+    SL_AddRefToString(val1.stringValue);
+    v21 = node2(20, v8, v18);
+    v22 = node4(15, v21, v20, v18, v18);
+    v23 = node2(20, v22, v18);
+    v24 = node2(7, v23, v18);
+    v25 = node4(2, v17, v24, v18, v18);
+    v26 = append_node(appended, v25);
+    i = i[1].node;
+  }
+  v27 = node3(52, appended, lhsSourcePos, lhsSourcePos);
+  v28 = node0(0);
+  v29 = linked_list_end(v28);
+  v30 = append_node(v29, v27);
+  v31 = node1(3, v8);
+  v32 = append_node(v30, v31);
+  return node3(52, v32, lhsSourcePos, lhsSourcePos);
+}
+
+/*
+==============
+Scr_CreateForEachStatement
+==============
+*/
+sval_u Scr_CreateForEachStatement(sval_u keyExpr, sval_u valueExpr, sval_u arrayExpr, sval_u stmt, sval_u sourcePos, sval_u keySourcePos, sval_u arraySourcePos)
+{
+  sval_u v9; 
+  sval_u v10; 
+  sval_u v11; 
+  sval_u v12; 
+  sval_u v14; 
+  sval_u v15; 
+  sval_u v16; 
+  sval_u v17; 
+  sval_u v18; 
+  sval_u v19; 
+  sval_u v20; 
+  sval_u v21; 
+  sval_u v22; 
+  sval_u v23; 
+  sval_u v24; 
+  sval_u v25; 
+  sval_u v26; 
+  sval_u appended; 
+  sval_u v28; 
+  sval_u v29; 
+  sval_u v30; 
+  sval_u v31; 
+  sval_u v32; 
+  sval_u v33; 
+  sval_u v34; 
+  sval_u v35; 
+  sval_u v36; 
+  sval_u v37; 
+  sval_u v38; 
+  sval_u v39; 
+  sval_u v40; 
+  sval_u v41; 
+  sval_u v42; 
+  sval_u v43; 
+  sval_u v44; 
+  sval_u v45; 
+  sval_u v46; 
+  sval_u v47; 
+  sval_u v48; 
+  sval_u v49; 
+  sval_u v50; 
+  sval_u v51; 
+  sval_u v52; 
+  sval_u v54; 
+  sval_u v55; 
+  sval_u v56; 
+  sval_u v57; 
+  sval_u v58; 
+  sval_u v59; 
+  sval_u v60; 
+  sval_u v61; 
+  sval_u v62; 
+  sval_u v63; 
+  sval_u v64; 
+  sval_u v65; 
+  sval_u v66; 
+  sval_u v67; 
+  sval_u val1; 
+  sval_u v73; 
+  char dest[64]; 
+
+  if ( !g_pScrCompileContext && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scr_yacc.txt", 148, ASSERT_TYPE_ASSERT, "( g_pScrCompileContext )", (const char *)&queryFormat, "g_pScrCompileContext") )
+    __debugbreak();
+  if ( !g_pScrCompileContext->m_compilePub.parseBuf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scr_yacc.txt", 149, ASSERT_TYPE_ASSERT, "( g_pScrCompileContext->m_compilePub.parseBuf )", (const char *)&queryFormat, "g_pScrCompileContext->m_compilePub.parseBuf") )
+    __debugbreak();
+  Com_sprintf(dest, 0x40ui64, ":%i", g_tempVarIndex);
+  ++g_tempVarIndex;
+  val1.type = j_SL_GetString_(dest, g_parse_user, 16);
+  SL_AddRefToString(val1.stringValue);
+  SL_AddRefToString(val1.stringValue);
+  v73 = node2(5, val1, arraySourcePos);
+  v9 = node4(2, v73, arrayExpr, arraySourcePos, arraySourcePos);
+  v10 = node2(20, v73, arraySourcePos);
+  v11 = node2(7, v10, arraySourcePos);
+  v12 = node1(8, v11);
+  val1.type = j_SL_GetString_("getfirstarraykey", g_parse_user, 16);
+  v14 = node2(23, val1, sourcePos);
+  v15 = node2(21, v14, sourcePos);
+  v16 = node2(29, v15, sourcePos);
+  v17 = node0(0);
+  v18 = node2_(v12, arraySourcePos);
+  v19 = prepend_node(v18, v17);
+  v20 = node3(26, v16, v19, sourcePos);
+  v21 = node1(22, v20);
+  v22 = node2(7, v21, sourcePos);
+  v23 = node1(18, keyExpr);
+  v24 = node4(2, v23, v22, sourcePos, sourcePos);
+  v25 = node0(0);
+  v26 = linked_list_end(v25);
+  appended = append_node(v26, v9);
+  v28 = append_node(appended, v24);
+  v29 = node3(52, v28, sourcePos, sourcePos);
+  v30 = node2(20, keyExpr, keySourcePos);
+  v31 = node2(7, v30, keySourcePos);
+  v32 = node1(8, v31);
+  v33 = node3(36, v32, keySourcePos, keySourcePos);
+  v34 = node2(7, v33, keySourcePos);
+  v35 = node1(74, v34);
+  val1.type = j_SL_GetString_("getnextarraykey", g_parse_user, 16);
+  v36 = node2(23, val1, sourcePos);
+  v37 = node2(21, v36, sourcePos);
+  v38 = node2(29, v37, sourcePos);
+  v39 = node0(0);
+  v40 = node2_(v11, arraySourcePos);
+  v41 = prepend_node(v40, v39);
+  v42 = node2_(v32, keySourcePos);
+  v43 = prepend_node(v42, v41);
+  v44 = node3(26, v38, v43, sourcePos);
+  v45 = node1(22, v44);
+  v46 = node2(7, v45, sourcePos);
+  v47 = node4(2, keyExpr, v46, sourcePos, sourcePos);
+  v48 = node0(0);
+  v49 = node2_(v12, arraySourcePos);
+  v50 = prepend_node(v49, v48);
+  v51 = node2(54, v50, arraySourcePos);
+  v52 = node4(15, v51, v32, arraySourcePos, keySourcePos);
+  v54 = node2(20, v52, sourcePos);
+  v55 = node2(7, v54, sourcePos);
+  v56 = node4(2, valueExpr, v55, sourcePos, sourcePos);
+  v57 = node0(0);
+  v58 = linked_list_end(v57);
+  v59 = append_node(v58, v56);
+  v60 = append_node(v59, stmt);
+  v61 = node3(52, v60, sourcePos, sourcePos);
+  v62 = node8(48, v29, v35, v47, v61, sourcePos, sourcePos, g_dummyVal, g_dummyVal);
+  v63 = node0(0);
+  v64 = linked_list_end(v63);
+  v65 = append_node(v64, v62);
+  v66 = node1(3, v73);
+  v67 = append_node(v65, v66);
+  return node3(52, v67, sourcePos, sourcePos);
+}
+
+/*
+==============
+Scr_NotAllowedInline
+==============
+*/
+void Scr_NotAllowedInline(unsigned int sourcePosValue)
+{
+  if ( Scr_InInline(g_pScrCompileContext) )
+    CompileError(g_pScrCompileContext, sourcePosValue, "not allowed inside a gsh file");
+}
+
+/*
+==============
+ScriptParse
+==============
+*/
+void ScriptParse(sval_u *parseData, unsigned __int8 user)
+{
+  char v3; 
+
+  g_out_pos = -1;
+  g_sourcePos = 0;
+  g_dummyVal.node = NULL;
+  inline_stack_ptr = 0;
+  inline_stack = (yy_buffer_state *)&v3;
+  g_parse_user = user;
+  yy_init = 1;
+  SetupYYBufferState();
+  yy_start = 3;
+  yy_current_buffer = &inline_stack[inline_stack_ptr];
+  yyparse();
+  *parseData = yaccResult;
+}
+
+/*
+==============
+yywrap
+==============
+*/
+__int64 yywrap()
+{
+  return 1i64;
+}
+

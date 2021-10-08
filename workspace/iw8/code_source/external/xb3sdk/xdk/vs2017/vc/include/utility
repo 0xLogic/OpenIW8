@@ -1,0 +1,74 @@
+/*
+==============
+std::swap<ProfileScrExceedSummaryFile,void>
+==============
+*/
+
+void __fastcall std::swap<ProfileScrExceedSummaryFile,void>(ProfileScrExceedSummaryFile *_Left, ProfileScrExceedSummaryFile *_Right)
+{
+  ??$swap@UProfileScrExceedSummaryFile@@X@std@@YAXAEAUProfileScrExceedSummaryFile@@0@Z(_Left, _Right);
+}
+
+/*
+==============
+std::swap<Microsoft::WRL::ComPtr<IUnknown>,void>
+==============
+*/
+
+void __fastcall std::swap<Microsoft::WRL::ComPtr<IUnknown>,void>(Microsoft::WRL::ComPtr<IUnknown> *_Left, Microsoft::WRL::ComPtr<IUnknown> *_Right)
+{
+  ??$swap@V?$ComPtr@UIUnknown@@@WRL@Microsoft@@X@std@@YAXAEAV?$ComPtr@UIUnknown@@@WRL@Microsoft@@0@Z(_Left, _Right);
+}
+
+/*
+==============
+std::swap<ProfileScrExceedSummaryFile,void>
+==============
+*/
+void std::swap<ProfileScrExceedSummaryFile,void>(ProfileScrExceedSummaryFile *_Left, ProfileScrExceedSummaryFile *_Right)
+{
+  int v2; 
+  char Src[9128]; 
+
+  memcpy_0(Src, _Left, (unsigned int)(v2 - 32));
+  memcpy_0(_Left, _Right, sizeof(ProfileScrExceedSummaryFile));
+  memcpy_0(_Right, Src, sizeof(ProfileScrExceedSummaryFile));
+}
+
+/*
+==============
+std::swap<Microsoft::WRL::ComPtr<IUnknown>,void>
+==============
+*/
+void std::swap<Microsoft::WRL::ComPtr<IUnknown>,void>(Microsoft::WRL::ComPtr<IUnknown> *_Left, Microsoft::WRL::ComPtr<IUnknown> *_Right)
+{
+  IUnknown *v4; 
+  IUnknown *ptr; 
+  IUnknown *v6; 
+  IUnknown *v7; 
+  IUnknown *v8; 
+  char v9; 
+
+  v4 = NULL;
+  ptr = NULL;
+  if ( &v9 != (char *)_Left )
+  {
+    ptr = _Left->ptr_;
+    _Left->ptr_ = NULL;
+  }
+  if ( &v9 != (char *)_Right )
+  {
+    v6 = _Right->ptr_;
+    _Right->ptr_ = NULL;
+    v4 = v6;
+  }
+  v7 = _Left->ptr_;
+  _Left->ptr_ = v4;
+  if ( v7 )
+    v7->Release(v7);
+  v8 = _Right->ptr_;
+  _Right->ptr_ = ptr;
+  if ( v8 )
+    v8->Release(v8);
+}
+

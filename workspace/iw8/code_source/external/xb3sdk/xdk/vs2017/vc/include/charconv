@@ -1,0 +1,142 @@
+/*
+==============
+std::_Integer_to_chars<__int64>
+==============
+*/
+
+std::to_chars_result *__fastcall std::_Integer_to_chars<__int64>(std::to_chars_result *result, char *_First, char *const _Last, const __int64 _Raw_value, const int _Base)
+{
+  return ??$_Integer_to_chars@_J@std@@YA?AUto_chars_result@0@PEADQEAD_JH@Z(result, _First, _Last, _Raw_value, _Base);
+}
+
+/*
+==============
+std::_Integer_to_chars<__int64>
+==============
+*/
+std::to_chars_result *std::_Integer_to_chars<__int64>(std::to_chars_result *result, char *_First, char *const _Last, const __int64 _Raw_value, const int _Base)
+{
+  char *v5; 
+  __int64 *v8; 
+  char v9; 
+  char v10; 
+  char v11; 
+  __int64 v12; 
+  __int64 v13; 
+  unsigned __int64 v14; 
+  char *v15; 
+  __int128 v18; 
+  __int64 v19[3]; 
+
+  v5 = _First;
+  _RSI = result;
+  if ( _Raw_value < 0 )
+  {
+    if ( _First == _Last )
+    {
+      *(_QWORD *)&v18 = _Last;
+      DWORD2(v18) = 132;
+      __asm
+      {
+        vmovups xmm0, [rsp+88h+var_68]
+        vmovups xmmword ptr [rcx], xmm0
+      }
+      return _RSI;
+    }
+    v5 = _First + 1;
+    *_First = 45;
+    _Raw_value = -_Raw_value;
+  }
+  v8 = v19;
+  switch ( _Base )
+  {
+    case 2:
+      do
+      {
+        v8 = (__int64 *)((char *)v8 - 1);
+        v9 = (_Raw_value & 1) + 48;
+        _Raw_value = (unsigned __int64)_Raw_value >> 1;
+        *(_BYTE *)v8 = v9;
+      }
+      while ( _Raw_value );
+      break;
+    case 4:
+      do
+      {
+        v8 = (__int64 *)((char *)v8 - 1);
+        v10 = (_Raw_value & 3) + 48;
+        _Raw_value = (unsigned __int64)_Raw_value >> 2;
+        *(_BYTE *)v8 = v10;
+      }
+      while ( _Raw_value );
+      break;
+    case 8:
+      do
+      {
+        v8 = (__int64 *)((char *)v8 - 1);
+        v11 = (_Raw_value & 7) + 48;
+        _Raw_value = (unsigned __int64)_Raw_value >> 3;
+        *(_BYTE *)v8 = v11;
+      }
+      while ( _Raw_value );
+      break;
+    case 10:
+      do
+      {
+        v8 = (__int64 *)((char *)v8 - 1);
+        *(_BYTE *)v8 = _Raw_value % 0xAui64 + 48;
+        _Raw_value /= 0xAui64;
+      }
+      while ( _Raw_value );
+      break;
+    case 16:
+      do
+      {
+        v8 = (__int64 *)((char *)v8 - 1);
+        v12 = _Raw_value & 0xF;
+        _Raw_value = (unsigned __int64)_Raw_value >> 4;
+        *(_BYTE *)v8 = `std::_Integer_to_chars<__int64>'::`2'::_Digits[v12];
+      }
+      while ( _Raw_value );
+      break;
+    case 32:
+      do
+      {
+        v8 = (__int64 *)((char *)v8 - 1);
+        v13 = _Raw_value & 0x1F;
+        _Raw_value = (unsigned __int64)_Raw_value >> 5;
+        *(_BYTE *)v8 = `std::_Integer_to_chars<__int64>'::`2'::_Digits[v13];
+      }
+      while ( _Raw_value );
+      break;
+    default:
+      do
+      {
+        v14 = _Raw_value % (unsigned __int64)_Base;
+        v8 = (__int64 *)((char *)v8 - 1);
+        _Raw_value /= (unsigned __int64)_Base;
+        *(_BYTE *)v8 = `std::_Integer_to_chars<__int64>'::`2'::_Digits[v14];
+      }
+      while ( _Raw_value );
+      break;
+  }
+  v15 = (char *)((char *)v19 - (char *)v8);
+  if ( _Last - v5 >= (char *)v19 - (char *)v8 )
+  {
+    memcpy_0(v5, v8, (char *)v19 - (char *)v8);
+    DWORD2(v18) = 0;
+    *(_QWORD *)&v18 = &v15[(_QWORD)v5];
+  }
+  else
+  {
+    *(_QWORD *)&v18 = _Last;
+    DWORD2(v18) = 132;
+  }
+  __asm
+  {
+    vmovups xmm0, [rsp+88h+var_68]
+    vmovups xmmword ptr [rsi], xmm0
+  }
+  return _RSI;
+}
+

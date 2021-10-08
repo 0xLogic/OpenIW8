@@ -1,0 +1,417 @@
+/*
+==============
+jpeg_idct_islow
+==============
+*/
+void jpeg_idct_islow(jpeg_decompress_struct *cinfo, jpeg_component_info *compptr, __int16 *coef_block, unsigned __int8 **output_buf, unsigned int output_col)
+{
+  __int16 *v5; 
+  _DWORD *dct_table; 
+  char *v7; 
+  __int16 v8; 
+  int v9; 
+  int v10; 
+  int v11; 
+  int v12; 
+  int v13; 
+  int v14; 
+  int v15; 
+  int v16; 
+  int v17; 
+  int v18; 
+  int v19; 
+  int v20; 
+  int v21; 
+  int v22; 
+  int v23; 
+  int v24; 
+  int v25; 
+  int v26; 
+  int v27; 
+  int v28; 
+  int v29; 
+  int v30; 
+  int v31; 
+  int v32; 
+  int v33; 
+  int v34; 
+  int v35; 
+  int v36; 
+  int v37; 
+  __int16 *v38; 
+  int *v39; 
+  _DWORD *v40; 
+  __int16 v41; 
+  int v42; 
+  int v43; 
+  int v44; 
+  int v45; 
+  int v46; 
+  int v47; 
+  int v48; 
+  int v49; 
+  int v50; 
+  int v51; 
+  int v52; 
+  int v53; 
+  int v54; 
+  int v55; 
+  int v56; 
+  int v57; 
+  int v58; 
+  int v59; 
+  int v60; 
+  int v61; 
+  int v62; 
+  int v63; 
+  int v64; 
+  int v65; 
+  int v66; 
+  int v67; 
+  int v68; 
+  bool v69; 
+  __int64 v70; 
+  char *v71; 
+  __int64 v72; 
+  int v73; 
+  unsigned __int8 *v74; 
+  unsigned __int8 *v75; 
+  unsigned __int8 v76; 
+  int v77; 
+  int v78; 
+  int v79; 
+  int v80; 
+  int v81; 
+  int v82; 
+  int v83; 
+  int v84; 
+  int v85; 
+  int v86; 
+  int v87; 
+  int v88; 
+  int v89; 
+  int v90; 
+  int v91; 
+  int v92; 
+  int v93; 
+  int v94; 
+  int v95; 
+  int v96; 
+  int v97; 
+  int v98; 
+  int v99; 
+  int v100; 
+  int v101; 
+  int v102; 
+  int v103; 
+  int v104; 
+  int v105; 
+  int v106; 
+  int v107; 
+  unsigned __int8 *v108; 
+  unsigned __int8 v109; 
+  int v110; 
+  int v111; 
+  int v112; 
+  int v113; 
+  int v114; 
+  int v115; 
+  int v116; 
+  int v117; 
+  int v118; 
+  int v119; 
+  int v120; 
+  int v121; 
+  int v122; 
+  int v123; 
+  int v124; 
+  int v125; 
+  int v126; 
+  int v127; 
+  int v128; 
+  int v129; 
+  int v130; 
+  int v131; 
+  int v132; 
+  int v133; 
+  int v134; 
+  int v135; 
+  int v136; 
+  int v137; 
+  _DWORD *v138; 
+  __int16 *v139; 
+  unsigned __int8 *v140; 
+  unsigned __int8 *v141; 
+  char *v142; 
+  int *v143; 
+  __int16 *v144; 
+  _DWORD *v145; 
+  __int64 v146; 
+  __int64 v147; 
+  __int64 v148; 
+  unsigned __int8 *v149; 
+  char v151[256]; 
+
+  v5 = coef_block;
+  dct_table = compptr->dct_table;
+  v149 = cinfo->sample_range_limit + 128;
+  v7 = v151;
+  v142 = v151;
+  v144 = coef_block;
+  v138 = dct_table;
+  v147 = 4i64;
+  do
+  {
+    v8 = v5[8];
+    if ( v8 || v5[16] || v5[24] || v5[32] || v5[40] || v5[48] || v5[56] )
+    {
+      v11 = dct_table[16] * v5[16];
+      v12 = dct_table[48] * v5[48];
+      v13 = *dct_table * *v5;
+      v14 = dct_table[40] * v5[40];
+      v15 = dct_table[24] * v5[24];
+      v16 = 4433 * (v12 + v11);
+      v17 = v16 - 15137 * v12;
+      v18 = dct_table[32] * v5[32];
+      v19 = v16 + 6270 * v11;
+      v20 = v18 + v13;
+      v21 = (v13 - v18) << 13;
+      v20 <<= 13;
+      v22 = v21 + v17;
+      v23 = v21 - v17;
+      v24 = dct_table[56] * v5[56];
+      v25 = v20 + v19;
+      v26 = v20 - v19;
+      v27 = v8 * dct_table[8];
+      v28 = 9633 * (v14 + v27 + v24 + v15);
+      v29 = -7373 * (v24 + v27);
+      v30 = -20995 * (v14 + v15);
+      v31 = v28 - 16069 * (v24 + v15);
+      v32 = v31 + v29 + 2446 * v24;
+      v33 = v28 - 3196 * (v14 + v27);
+      v34 = v30 + v31 + 25172 * v15;
+      v35 = v30 + v33 + 16819 * v14;
+      v36 = v33 + 12299 * v27;
+      v7 = v142;
+      v37 = v29 + v36;
+      *(_DWORD *)v142 = (v25 + v37 + 1024) >> 11;
+      *((_DWORD *)v142 + 8) = (v22 + v34 + 1024) >> 11;
+      *((_DWORD *)v142 + 16) = (v23 + v35 + 1024) >> 11;
+      *((_DWORD *)v142 + 40) = (v23 - v35 + 1024) >> 11;
+      *((_DWORD *)v142 + 56) = (v25 - v37 + 1024) >> 11;
+      *((_DWORD *)v142 + 48) = (v22 - v34 + 1024) >> 11;
+      v5 = v144;
+      dct_table = v138;
+      v9 = (v26 - v32 + 1024) >> 11;
+      v10 = (v26 + v32 + 1024) >> 11;
+    }
+    else
+    {
+      v9 = 4 * *dct_table * *v5;
+      *(_DWORD *)v7 = v9;
+      v10 = v9;
+      *((_DWORD *)v7 + 8) = v9;
+      *((_DWORD *)v7 + 16) = v9;
+      *((_DWORD *)v7 + 40) = v9;
+      *((_DWORD *)v7 + 48) = v9;
+      *((_DWORD *)v7 + 56) = v9;
+    }
+    v38 = v5 + 1;
+    *((_DWORD *)v7 + 24) = v10;
+    v39 = (int *)(v7 + 4);
+    *((_DWORD *)v7 + 32) = v9;
+    v40 = dct_table + 1;
+    v143 = (int *)(v7 + 4);
+    v145 = v40;
+    v41 = v38[8];
+    v139 = v38;
+    if ( v41 || v38[16] || v38[24] || v38[32] || v38[40] || v38[48] || v38[56] )
+    {
+      v43 = v40[16] * v38[16];
+      v44 = v40[48] * v38[48];
+      v45 = *v40 * *v38;
+      v46 = v40[40] * v38[40];
+      v47 = v40[24] * v38[24];
+      v48 = 4433 * (v44 + v43);
+      v49 = v48 - 15137 * v44;
+      v50 = v40[32] * v38[32];
+      v51 = v48 + 6270 * v43;
+      v52 = v50 + v45;
+      v53 = (v45 - v50) << 13;
+      v52 <<= 13;
+      v54 = v53 + v49;
+      v55 = v53 - v49;
+      v56 = v40[56] * v38[56];
+      v57 = v52 + v51;
+      v58 = v52 - v51;
+      v59 = v41 * v40[8];
+      v60 = 9633 * (v46 + v59 + v56 + v47);
+      v61 = -7373 * (v56 + v59);
+      v62 = -20995 * (v46 + v47);
+      v63 = v60 - 16069 * (v56 + v47);
+      v64 = v63 + v61 + 2446 * v56;
+      v65 = v60 - 3196 * (v46 + v59);
+      v66 = v62 + v65 + 16819 * v46;
+      v67 = v62 + v63 + 25172 * v47;
+      v39 = v143;
+      v68 = v61 + v65 + 12299 * v59;
+      *v143 = (v57 + v68 + 1024) >> 11;
+      v143[56] = (v57 - v68 + 1024) >> 11;
+      v143[8] = (v54 + v67 + 1024) >> 11;
+      v143[48] = (v54 - v67 + 1024) >> 11;
+      v143[16] = (v55 + v66 + 1024) >> 11;
+      v143[40] = (v55 - v66 + 1024) >> 11;
+      v38 = v139;
+      v40 = v145;
+      v143[24] = (v58 + v64 + 1024) >> 11;
+      v143[32] = (v58 - v64 + 1024) >> 11;
+    }
+    else
+    {
+      v42 = 4 * *v40 * *v38;
+      *v39 = v42;
+      v39[8] = v42;
+      v39[16] = v42;
+      v39[24] = v42;
+      v39[32] = v42;
+      v39[40] = v42;
+      v39[48] = v42;
+      v39[56] = v42;
+    }
+    v5 = v38 + 1;
+    v7 = (char *)(v39 + 1);
+    dct_table = v40 + 1;
+    v144 = v5;
+    v69 = v147-- == 1;
+    v138 = dct_table;
+    v142 = (char *)(v39 + 1);
+  }
+  while ( !v69 );
+  v70 = output_col;
+  v71 = v151;
+  v72 = 0i64;
+  v148 = 0i64;
+  do
+  {
+    v73 = *((_DWORD *)v71 + 1);
+    v146 = v72;
+    v74 = &output_buf[v72][v70];
+    v140 = v74;
+    if ( v73 || *((_DWORD *)v71 + 2) || *((_DWORD *)v71 + 3) || *((_DWORD *)v71 + 4) || *((_DWORD *)v71 + 5) || *((_DWORD *)v71 + 6) || *((_DWORD *)v71 + 7) )
+    {
+      v77 = *((_DWORD *)v71 + 5);
+      v78 = *((_DWORD *)v71 + 2);
+      v79 = *((_DWORD *)v71 + 6);
+      v80 = *((_DWORD *)v71 + 3);
+      v81 = 4433 * (v79 + v78);
+      v82 = 15137 * v79;
+      v83 = 6270 * v78;
+      v84 = *((_DWORD *)v71 + 7);
+      v85 = 2446 * v84;
+      v86 = v81 - v82;
+      v87 = *((_DWORD *)v71 + 4);
+      v88 = v81 + v83;
+      v89 = v77 + v73;
+      v90 = (*(_DWORD *)v71 + v87) << 13;
+      v91 = (*(_DWORD *)v71 - v87) << 13;
+      v92 = v90 + v88;
+      v93 = v90 - v88;
+      v94 = 9633 * (v77 + v73 + v84 + v80);
+      v95 = v91 + v86;
+      v96 = v91 - v86;
+      v97 = -7373 * (v84 + v73);
+      v98 = -20995 * (v77 + v80);
+      v99 = 16069 * (v84 + v80);
+      v100 = 16819 * v77;
+      v75 = v149;
+      v101 = v94 - v99;
+      v102 = v94 - v99 + v97 + v85;
+      v103 = v94 - 3196 * v89;
+      v104 = v98 + v101 + 25172 * v80;
+      v105 = v98 + v103 + v100;
+      v74 = v140;
+      v106 = v97 + v103 + 12299 * *((_DWORD *)v71 + 1);
+      *v140 = v149[(((unsigned int)(v92 + v106) + 0x20000i64) >> 18) & 0x3FF];
+      v140[7] = v149[(((unsigned int)(v92 - v106) + 0x20000i64) >> 18) & 0x3FF];
+      v140[1] = v149[(((unsigned int)(v95 + v104) + 0x20000i64) >> 18) & 0x3FF];
+      v140[6] = v149[(((unsigned int)(v95 - v104) + 0x20000i64) >> 18) & 0x3FF];
+      v140[2] = v149[(((unsigned int)(v96 + v105) + 0x20000i64) >> 18) & 0x3FF];
+      v140[5] = v149[(((unsigned int)(v96 - v105) + 0x20000i64) >> 18) & 0x3FF];
+      v140[3] = v149[(((unsigned int)(v93 + v102) + 0x20000i64) >> 18) & 0x3FF];
+      v76 = v149[(((unsigned int)(v93 - v102) + 0x20000i64) >> 18) & 0x3FF];
+    }
+    else
+    {
+      v75 = v149;
+      v76 = v149[((*(unsigned int *)v71 + 16i64) >> 5) & 0x3FF];
+      *v74 = v76;
+      v74[1] = v76;
+      v74[2] = v76;
+      v74[3] = v76;
+      v74[5] = v76;
+      v74[6] = v76;
+      v74[7] = v76;
+    }
+    v74[4] = v76;
+    v107 = *((_DWORD *)v71 + 9);
+    v108 = &output_buf[v146 + 1][output_col];
+    v141 = v108;
+    if ( v107 || *((_DWORD *)v71 + 10) || *((_DWORD *)v71 + 11) || *((_DWORD *)v71 + 12) || *((_DWORD *)v71 + 13) || *((_DWORD *)v71 + 14) || *((_DWORD *)v71 + 15) )
+    {
+      v110 = *((_DWORD *)v71 + 11);
+      v111 = *((_DWORD *)v71 + 10);
+      v112 = *((_DWORD *)v71 + 14);
+      v113 = *((_DWORD *)v71 + 13);
+      v114 = *((_DWORD *)v71 + 8);
+      v115 = 4433 * (v112 + v111);
+      v116 = 15137 * v112;
+      v117 = 6270 * v111;
+      v118 = *((_DWORD *)v71 + 15);
+      v119 = v115 - v116;
+      v120 = *((_DWORD *)v71 + 12);
+      v121 = v115 + v117;
+      v122 = v113 + v107;
+      v123 = (v114 + v120) << 13;
+      v124 = (v114 - v120) << 13;
+      v125 = v123 + v121;
+      v126 = v123 - v121;
+      v127 = 9633 * (v113 + v107 + v118 + v110);
+      v128 = v124 + v119;
+      v129 = v124 - v119;
+      v130 = -7373 * (v118 + v107);
+      v131 = -20995 * (v113 + v110);
+      v132 = v127 - 16069 * (v118 + v110);
+      v133 = v132 + v130 + 2446 * v118;
+      v134 = v127 - 3196 * v122;
+      v135 = v131 + v132 + 25172 * v110;
+      v136 = v131 + v134 + 16819 * v113;
+      v137 = v130 + v134 + 12299 * *((_DWORD *)v71 + 9);
+      *v141 = v149[(((unsigned int)(v125 + v137) + 0x20000i64) >> 18) & 0x3FF];
+      v141[7] = v149[(((unsigned int)(v125 - v137) + 0x20000i64) >> 18) & 0x3FF];
+      v141[1] = v149[(((unsigned int)(v128 + v135) + 0x20000i64) >> 18) & 0x3FF];
+      v141[6] = v149[(((unsigned int)(v128 - v135) + 0x20000i64) >> 18) & 0x3FF];
+      v141[2] = v149[(((unsigned int)(v129 + v136) + 0x20000i64) >> 18) & 0x3FF];
+      v141[5] = v149[(((unsigned int)(v129 - v136) + 0x20000i64) >> 18) & 0x3FF];
+      v141[3] = v149[(((unsigned int)(v126 + v133) + 0x20000i64) >> 18) & 0x3FF];
+      v141[4] = v149[(((unsigned int)(v126 - v133) + 0x20000i64) >> 18) & 0x3FF];
+    }
+    else
+    {
+      v109 = v75[((*((unsigned int *)v71 + 8) + 16i64) >> 5) & 0x3FF];
+      *v108 = v109;
+      v108[1] = v109;
+      v108[2] = v109;
+      v108[3] = v109;
+      v108[4] = v109;
+      v108[5] = v109;
+      v108[6] = v109;
+      v108[7] = v109;
+    }
+    v71 += 64;
+    v70 = output_col;
+    v72 = v148 + 2;
+    v148 = v72;
+  }
+  while ( v72 < 8 );
+}
+

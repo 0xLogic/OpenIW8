@@ -1,0 +1,29 @@
+/*
+==============
+assign
+==============
+*/
+void assign(char **ptr, const char *src, int len)
+{
+  char *v3; 
+  char *v5; 
+  hkMemoryRouter *Value; 
+
+  v3 = *ptr;
+  if ( (const char *)((unsigned __int64)*ptr & 0xFFFFFFFFFFFFFFFEui64) != src || len != -1 )
+  {
+    if ( src )
+      v5 = len == -1 ? hkString::strDup(src) + 1 : hkString::strNdup(src, len) + 1;
+    else
+      v5 = NULL;
+    *ptr = v5;
+    if ( ((unsigned __int8)v3 & 1) != 0 )
+    {
+      Value = (hkMemoryRouter *)TlsGetValue(hkMemoryRouter::s_memoryRouter.m_slotID);
+      if ( !Value )
+        Value = hkMemoryRouter::s_fallbackRouter;
+      hkMemoryRouter::easyFree(Value->m_heap, v3 - 1);
+    }
+  }
+}
+

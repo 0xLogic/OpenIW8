@@ -1,0 +1,53 @@
+/*
+==============
+std::unique_lock<std::mutex>::~unique_lock<std::mutex>
+==============
+*/
+
+void __fastcall std::unique_lock<std::mutex>::~unique_lock<std::mutex>(std::unique_lock<std::mutex> *this)
+{
+  ??1?$unique_lock@Vmutex@std@@@std@@QEAA@XZ(this);
+}
+
+/*
+==============
+std::lock_guard<std::mutex>::~lock_guard<std::mutex>
+==============
+*/
+
+void __fastcall std::lock_guard<std::mutex>::~lock_guard<std::mutex>(std::lock_guard<std::mutex> *this)
+{
+  ??1?$lock_guard@Vmutex@std@@@std@@QEAA@XZ(this);
+}
+
+/*
+==============
+std::lock_guard<std::mutex>::~lock_guard<std::mutex>
+==============
+*/
+void std::lock_guard<std::mutex>::~lock_guard<std::mutex>(std::lock_guard<std::mutex> *this)
+{
+  int v1; 
+
+  v1 = Mtx_unlock_0((_Mtx_t)this->_MyMutex);
+  if ( v1 )
+    std::_Throw_C_error(v1);
+}
+
+/*
+==============
+std::unique_lock<std::mutex>::~unique_lock<std::mutex>
+==============
+*/
+void std::unique_lock<std::mutex>::~unique_lock<std::mutex>(std::unique_lock<std::mutex> *this)
+{
+  int v1; 
+
+  if ( this->_Owns )
+  {
+    v1 = Mtx_unlock_0((_Mtx_t)this->_Pmtx);
+    if ( v1 )
+      std::_Throw_C_error(v1);
+  }
+}
+

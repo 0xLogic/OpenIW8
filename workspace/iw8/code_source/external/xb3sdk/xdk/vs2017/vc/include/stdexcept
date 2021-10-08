@@ -1,0 +1,66 @@
+/*
+==============
+std::runtime_error::_Doraise
+==============
+*/
+
+void __fastcall __noreturn std::runtime_error::_Doraise(std::runtime_error *this)
+{
+  ?_Doraise@runtime_error@std@@MEBAXXZ(this);
+}
+
+/*
+==============
+std::runtime_error::runtime_error
+==============
+*/
+
+void __fastcall std::runtime_error::runtime_error(std::runtime_error *this, const std::runtime_error *__that)
+{
+  ??0runtime_error@std@@QEAA@AEBV01@@Z(this, __that);
+}
+
+/*
+==============
+std::runtime_error::runtime_error
+==============
+*/
+
+void __fastcall std::runtime_error::runtime_error(std::runtime_error *this, const char *_Message)
+{
+  ??0runtime_error@std@@QEAA@PEBD@Z(this, _Message);
+}
+
+/*
+==============
+std::runtime_error::runtime_error
+==============
+*/
+void std::runtime_error::runtime_error(std::runtime_error *this, const char *_Message)
+{
+  this->_Data._What = _Message;
+  this->__vftable = (std::runtime_error_vtbl *)&std::runtime_error::`vftable';
+}
+
+/*
+==============
+std::runtime_error::_Doraise
+==============
+*/
+void __noreturn std::runtime_error::_Doraise(std::runtime_error *this)
+{
+  _invoke_watson(NULL, NULL, NULL, 0, 0i64);
+}
+
+/*
+==============
+std::runtime_error::runtime_error
+==============
+*/
+void std::runtime_error::runtime_error(std::runtime_error *this, const std::runtime_error *__that)
+{
+  this->__vftable = (std::runtime_error_vtbl *)&stdext::exception::`vftable';
+  this->_Data._What = __that->_Data._What;
+  this->__vftable = (std::runtime_error_vtbl *)&std::runtime_error::`vftable';
+}
+

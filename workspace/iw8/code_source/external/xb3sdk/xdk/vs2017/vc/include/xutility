@@ -1,0 +1,638 @@
+/*
+==============
+std::_Ptr_move_cat<EntityNameplate,EntityNameplate>
+==============
+*/
+
+std::_Trivially_copyable_ptr_iterator_tag __fastcall std::_Ptr_move_cat<EntityNameplate,EntityNameplate>(EntityNameplate *const *__formal, EntityNameplate *const *a2)
+{
+  return ??$_Ptr_move_cat@UEntityNameplate@@U1@@std@@YA?AU_Trivially_copyable_ptr_iterator_tag@0@AEBQEAUEntityNameplate@@0@Z(__formal, a2);
+}
+
+/*
+==============
+std::_Ptr_move_cat<EntityNameplate,EntityNameplate>
+==============
+*/
+
+std::_Trivially_copyable_ptr_iterator_tag __fastcall std::_Ptr_move_cat<EntityNameplate,EntityNameplate>(EntityNameplate *const *__formal, EntityNameplate *const *a2)
+{
+  return ??$_Ptr_move_cat@UEntityNameplate@@U1@@std@@YA?AU_Trivially_copyable_ptr_iterator_tag@0@AEBQEAUEntityNameplate@@0@Z(__formal, a2);
+}
+
+/*
+==============
+std::_Ptr_move_cat<flatbuffers::FlatBufferBuilder::FieldLoc,flatbuffers::FlatBufferBuilder::FieldLoc>
+==============
+*/
+
+std::_Really_trivial_ptr_iterator_tag __fastcall std::_Ptr_move_cat<flatbuffers::FlatBufferBuilder::FieldLoc,flatbuffers::FlatBufferBuilder::FieldLoc>(flatbuffers::FlatBufferBuilder::FieldLoc *const *__formal, flatbuffers::FlatBufferBuilder::FieldLoc *const *a2)
+{
+  return ??$_Ptr_move_cat@UFieldLoc@FlatBufferBuilder@flatbuffers@@U123@@std@@YA?AU_Really_trivial_ptr_iterator_tag@0@AEBQEAUFieldLoc@FlatBufferBuilder@flatbuffers@@0@Z(__formal, a2);
+}
+
+/*
+==============
+std::_Ptr_copy_cat<void *,void *>
+==============
+*/
+
+std::_Really_trivial_ptr_iterator_tag __fastcall std::_Ptr_copy_cat<void *,void *>(void **const *__formal, void **const *a2)
+{
+  return ??$_Ptr_copy_cat@PEAXPEAX@std@@YA?AU_Really_trivial_ptr_iterator_tag@0@AEBQEAPEAX0@Z(__formal, a2);
+}
+
+/*
+==============
+std::_Pass_fn<R_RT_Tracking_SurfaceRecordIndexLess,0>
+==============
+*/
+
+std::_Ref_fn<R_RT_Tracking_SurfaceRecordIndexLess> __fastcall std::_Pass_fn<R_RT_Tracking_SurfaceRecordIndexLess,0>(R_RT_Tracking_SurfaceRecordIndexLess *_Val)
+{
+  return ??$_Pass_fn@UR_RT_Tracking_SurfaceRecordIndexLess@@$0A@@std@@YA?AU?$_Ref_fn@UR_RT_Tracking_SurfaceRecordIndexLess@@@0@AEAUR_RT_Tracking_SurfaceRecordIndexLess@@@Z(_Val);
+}
+
+/*
+==============
+std::_Ptr_move_cat<float,float>
+==============
+*/
+
+std::_Really_trivial_ptr_iterator_tag __fastcall std::_Ptr_move_cat<float,float>(float *const *__formal, float *const *a2)
+{
+  return ??$_Ptr_move_cat@MM@std@@YA?AU_Really_trivial_ptr_iterator_tag@0@AEBQEAM0@Z(__formal, a2);
+}
+
+/*
+==============
+std::_Ptr_move_cat<StreamSortKeyPacked,StreamSortKeyPacked>
+==============
+*/
+
+std::_Really_trivial_ptr_iterator_tag __fastcall std::_Ptr_move_cat<StreamSortKeyPacked,StreamSortKeyPacked>(StreamSortKeyPacked *const *__formal, StreamSortKeyPacked *const *a2)
+{
+  return ??$_Ptr_move_cat@UStreamSortKeyPacked@@U1@@std@@YA?AU_Really_trivial_ptr_iterator_tag@0@AEBQEAUStreamSortKeyPacked@@0@Z(__formal, a2);
+}
+
+/*
+==============
+std::_Ptr_copy_cat<DLogTDigestCentroid,DLogTDigestCentroid>
+==============
+*/
+
+std::_Trivially_copyable_ptr_iterator_tag __fastcall std::_Ptr_copy_cat<DLogTDigestCentroid,DLogTDigestCentroid>(DLogTDigestCentroid *const *__formal, DLogTDigestCentroid *const *a2)
+{
+  return ??$_Ptr_copy_cat@VDLogTDigestCentroid@@V1@@std@@YA?AU_Trivially_copyable_ptr_iterator_tag@0@AEBQEAVDLogTDigestCentroid@@0@Z(__formal, a2);
+}
+
+/*
+==============
+std::_Ptr_copy_cat<R_RT_Tracking_AllocRecord,R_RT_Tracking_AllocRecord>
+==============
+*/
+
+std::_Really_trivial_ptr_iterator_tag __fastcall std::_Ptr_copy_cat<R_RT_Tracking_AllocRecord,R_RT_Tracking_AllocRecord>(R_RT_Tracking_AllocRecord *const *__formal, R_RT_Tracking_AllocRecord *const *a2)
+{
+  return ??$_Ptr_copy_cat@UR_RT_Tracking_AllocRecord@@U1@@std@@YA?AU_Really_trivial_ptr_iterator_tag@0@AEBQEAUR_RT_Tracking_AllocRecord@@0@Z(__formal, a2);
+}
+
+/*
+==============
+std::_Pass_fn<CgClientScoreCompare,0>
+==============
+*/
+
+std::_Ref_fn<CgClientScoreCompare> __fastcall std::_Pass_fn<CgClientScoreCompare,0>(CgClientScoreCompare *_Val)
+{
+  return ??$_Pass_fn@UCgClientScoreCompare@@$0A@@std@@YA?AU?$_Ref_fn@UCgClientScoreCompare@@@0@AEAUCgClientScoreCompare@@@Z(_Val);
+}
+
+/*
+==============
+std::_Pass_fn<R_RT_Tracking_AllocRecordIndexLess,0>
+==============
+*/
+
+std::_Ref_fn<R_RT_Tracking_AllocRecordIndexLess> __fastcall std::_Pass_fn<R_RT_Tracking_AllocRecordIndexLess,0>(R_RT_Tracking_AllocRecordIndexLess *_Val)
+{
+  return ??$_Pass_fn@UR_RT_Tracking_AllocRecordIndexLess@@$0A@@std@@YA?AU?$_Ref_fn@UR_RT_Tracking_AllocRecordIndexLess@@@0@AEAUR_RT_Tracking_AllocRecordIndexLess@@@Z(_Val);
+}
+
+/*
+==============
+std::_Ptr_move_cat<DLogTDigestCentroid,DLogTDigestCentroid>
+==============
+*/
+
+std::_Trivially_copyable_ptr_iterator_tag __fastcall std::_Ptr_move_cat<DLogTDigestCentroid,DLogTDigestCentroid>(DLogTDigestCentroid *const *__formal, DLogTDigestCentroid *const *a2)
+{
+  return ??$_Ptr_move_cat@VDLogTDigestCentroid@@V1@@std@@YA?AU_Trivially_copyable_ptr_iterator_tag@0@AEBQEAVDLogTDigestCentroid@@0@Z(__formal, a2);
+}
+
+/*
+==============
+std::_Ptr_move_cat<StreamBufferReadInfo,StreamBufferReadInfo>
+==============
+*/
+
+std::_Trivially_copyable_ptr_iterator_tag __fastcall std::_Ptr_move_cat<StreamBufferReadInfo,StreamBufferReadInfo>(StreamBufferReadInfo *const *__formal, StreamBufferReadInfo *const *a2)
+{
+  return ??$_Ptr_move_cat@UStreamBufferReadInfo@@U1@@std@@YA?AU_Trivially_copyable_ptr_iterator_tag@0@AEBQEAUStreamBufferReadInfo@@0@Z(__formal, a2);
+}
+
+/*
+==============
+std::_Ptr_copy_cat<DLogTDigestCentroid,DLogTDigestCentroid>
+==============
+*/
+DLogTDigestCentroid *const *std::_Ptr_copy_cat<DLogTDigestCentroid,DLogTDigestCentroid>(DLogTDigestCentroid *const *__formal, DLogTDigestCentroid *const *a2)
+{
+  *(_BYTE *)__formal = 0;
+  return __formal;
+}
+
+/*
+==============
+std::_Ptr_move_cat<DLogTDigestCentroid,DLogTDigestCentroid>
+==============
+*/
+DLogTDigestCentroid *const *std::_Ptr_move_cat<DLogTDigestCentroid,DLogTDigestCentroid>(DLogTDigestCentroid *const *__formal, DLogTDigestCentroid *const *a2)
+{
+  *(_BYTE *)__formal = 0;
+  return __formal;
+}
+
+/*
+==============
+?__abi_Windows_Foundation_Collections_?$IIterator@PE$AAVInventoryItem@Marketplace@Services@Xbox@Microsoft@@____abi_MoveNext@?Q?$IIterator@PE$AAVInventoryItem@Marketplace@Services@Xbox@Microsoft@@@Collections@Foundation@Windows@@?$IteratorForVectorView@PE$AAVInventoryItem@Marketplace@Services@Xbox@Microsoft@@@Details@2Platform@@UE$AAAJPEA_N@Z
+==============
+*/
+__int64 ___abi_Windows_Foundation_Collections___IIterator_PE_AAVInventoryItem_Marketplace_Services_Xbox_Microsoft______abi_MoveNext__Q__IIterator_PE_AAVInventoryItem_Marketplace_Services_Xbox_Microsoft___Collections_Foundation_Windows____IteratorForVectorView_PE_AAVInventoryItem_Marketplace_Services_Xbox_Microsoft___Details_2Platform__UE_AAAJPEA_N_Z(Platform::Collections::Details::IteratorForVectorView<Microsoft::Xbox::Services::Marketplace::InventoryItem _> *this, bool *__abi_returnValue)
+{
+  std::vector<Microsoft::Xbox::Services::Marketplace::InventoryItem _> *Ptr; 
+  unsigned __int64 m_index; 
+  unsigned __int64 v5; 
+  void *Exception; 
+  void *v8; 
+  void *pExceptionObject; 
+  __int64 v10[4]; 
+  const volatile Platform::Object *v11; 
+  const volatile Platform::Object *v12; 
+
+  v10[1] = -2i64;
+  if ( this->__abi_disposed )
+  {
+    __abi_WinRTraiseObjectDisposedException();
+    __debugbreak();
+  }
+  *__abi_returnValue = 0;
+  if ( *this->m_ctr._Ptr != this->m_good_ctr )
+  {
+    Exception = Platform::Details::Heap::AllocateException(0x68ui64, 0x90ui64);
+    v11 = (const volatile Platform::Object *)Platform::ChangedStateException::ChangedStateException(Exception);
+    pExceptionObject = __abi_winrt_ptr_ctor(v11);
+    CxxThrowException_0(&pExceptionObject, (_ThrowInfo *)&TI11PE_AAVChangedStateException_Platform__);
+  }
+  Ptr = this->m_vec._Ptr;
+  m_index = this->m_index;
+  if ( m_index >= Ptr->_Mypair._Myval2._Mylast - Ptr->_Mypair._Myval2._Myfirst )
+  {
+    v8 = Platform::Details::Heap::AllocateException(0x68ui64, 0x90ui64);
+    v12 = (const volatile Platform::Object *)Platform::OutOfBoundsException::OutOfBoundsException(v8);
+    v10[0] = (__int64)__abi_winrt_ptr_ctor(v12);
+    CxxThrowException_0(v10, (_ThrowInfo *)&TI11PE_AAVOutOfBoundsException_Platform__);
+  }
+  v5 = (unsigned int)(m_index + 1);
+  this->m_index = v5;
+  *__abi_returnValue = v5 < Ptr->_Mypair._Myval2._Mylast - Ptr->_Mypair._Myval2._Myfirst;
+  return 0i64;
+}
+
+/*
+==============
+std::_Ptr_move_cat<StreamBufferReadInfo,StreamBufferReadInfo>
+==============
+*/
+StreamBufferReadInfo *const *std::_Ptr_move_cat<StreamBufferReadInfo,StreamBufferReadInfo>(StreamBufferReadInfo *const *__formal, StreamBufferReadInfo *const *a2)
+{
+  *(_BYTE *)__formal = 0;
+  return __formal;
+}
+
+/*
+==============
+std::_Ptr_move_cat<StreamSortKeyPacked,StreamSortKeyPacked>
+==============
+*/
+StreamSortKeyPacked *const *std::_Ptr_move_cat<StreamSortKeyPacked,StreamSortKeyPacked>(StreamSortKeyPacked *const *__formal, StreamSortKeyPacked *const *a2)
+{
+  *(_BYTE *)__formal = 0;
+  return __formal;
+}
+
+/*
+==============
+?__abi_Windows_Foundation_Collections_?$IIterator@PE$AAUIDownloadableContentPackage@Deployment@Management@Xbox@Windows@@____abi_MoveNext@?Q?$IIterator@PE$AAUIDownloadableContentPackage@Deployment@Management@Xbox@Windows@@@Collections@Foundation@Windows@@?$IteratorForVectorView@PE$AAUIDownloadableContentPackage@Deployment@Management@Xbox@Windows@@@Details@2Platform@@UE$AAAJPEA_N@Z
+==============
+*/
+__int64 ___abi_Windows_Foundation_Collections___IIterator_PE_AAUIDownloadableContentPackage_Deployment_Management_Xbox_Windows______abi_MoveNext__Q__IIterator_PE_AAUIDownloadableContentPackage_Deployment_Management_Xbox_Windows___Collections_Foundation_Windows____IteratorForVectorView_PE_AAUIDownloadableContentPackage_Deployment_Management_Xbox_Windows___Details_2Platform__UE_AAAJPEA_N_Z(Platform::Collections::Details::IteratorForVectorView<Windows::Xbox::Management::Deployment::IDownloadableContentPackage _> *this, bool *__abi_returnValue)
+{
+  std::vector<Platform::Agile<Windows::Xbox::Management::Deployment::IDownloadableContentPackage _,1>> *Ptr; 
+  unsigned __int64 m_index; 
+  unsigned __int64 v5; 
+  void *Exception; 
+  void *v8; 
+  void *pExceptionObject; 
+  __int64 v10[4]; 
+  const volatile Platform::Object *v11; 
+  const volatile Platform::Object *v12; 
+
+  v10[1] = -2i64;
+  if ( this->__abi_disposed )
+  {
+    __abi_WinRTraiseObjectDisposedException();
+    __debugbreak();
+  }
+  *__abi_returnValue = 0;
+  if ( *this->m_ctr._Ptr != this->m_good_ctr )
+  {
+    Exception = Platform::Details::Heap::AllocateException(0x68ui64, 0x90ui64);
+    v11 = (const volatile Platform::Object *)Platform::ChangedStateException::ChangedStateException(Exception);
+    pExceptionObject = __abi_winrt_ptr_ctor(v11);
+    CxxThrowException_0(&pExceptionObject, (_ThrowInfo *)&TI11PE_AAVChangedStateException_Platform__);
+  }
+  Ptr = this->m_vec._Ptr;
+  m_index = this->m_index;
+  if ( m_index >= Ptr->_Mypair._Myval2._Mylast - Ptr->_Mypair._Myval2._Myfirst )
+  {
+    v8 = Platform::Details::Heap::AllocateException(0x68ui64, 0x90ui64);
+    v12 = (const volatile Platform::Object *)Platform::OutOfBoundsException::OutOfBoundsException(v8);
+    v10[0] = (__int64)__abi_winrt_ptr_ctor(v12);
+    CxxThrowException_0(v10, (_ThrowInfo *)&TI11PE_AAVOutOfBoundsException_Platform__);
+  }
+  v5 = (unsigned int)(m_index + 1);
+  this->m_index = v5;
+  *__abi_returnValue = v5 < Ptr->_Mypair._Myval2._Mylast - Ptr->_Mypair._Myval2._Myfirst;
+  return 0i64;
+}
+
+/*
+==============
+std::_Ptr_move_cat<flatbuffers::FlatBufferBuilder::FieldLoc,flatbuffers::FlatBufferBuilder::FieldLoc>
+==============
+*/
+flatbuffers::FlatBufferBuilder::FieldLoc *const *std::_Ptr_move_cat<flatbuffers::FlatBufferBuilder::FieldLoc,flatbuffers::FlatBufferBuilder::FieldLoc>(flatbuffers::FlatBufferBuilder::FieldLoc *const *__formal, flatbuffers::FlatBufferBuilder::FieldLoc *const *a2)
+{
+  *(_BYTE *)__formal = 0;
+  return __formal;
+}
+
+/*
+==============
+?__abi_Windows_Foundation_Collections_?$IIterator@I____abi_MoveNext@?Q?$IIterator@I@Collections@Foundation@Windows@@?$IteratorForVectorView@I@Details@2Platform@@UE$AAAJPEA_N@Z
+==============
+*/
+__int64 ___abi_Windows_Foundation_Collections___IIterator_I____abi_MoveNext__Q__IIterator_I_Collections_Foundation_Windows____IteratorForVectorView_I_Details_2Platform__UE_AAAJPEA_N_Z(Platform::Collections::Details::IteratorForVectorView<unsigned int> *this, bool *__abi_returnValue)
+{
+  std::vector<unsigned int> *Ptr; 
+  unsigned __int64 m_index; 
+  unsigned __int64 v5; 
+  void *Exception; 
+  void *v8; 
+  void *pExceptionObject; 
+  __int64 v10[4]; 
+  const volatile Platform::Object *v11; 
+  const volatile Platform::Object *v12; 
+
+  v10[1] = -2i64;
+  if ( this->__abi_disposed )
+  {
+    __abi_WinRTraiseObjectDisposedException();
+    __debugbreak();
+  }
+  *__abi_returnValue = 0;
+  if ( *this->m_ctr._Ptr != this->m_good_ctr )
+  {
+    Exception = Platform::Details::Heap::AllocateException(0x68ui64, 0x90ui64);
+    v11 = (const volatile Platform::Object *)Platform::ChangedStateException::ChangedStateException(Exception);
+    pExceptionObject = __abi_winrt_ptr_ctor(v11);
+    CxxThrowException_0(&pExceptionObject, (_ThrowInfo *)&TI11PE_AAVChangedStateException_Platform__);
+  }
+  Ptr = this->m_vec._Ptr;
+  m_index = this->m_index;
+  if ( m_index >= Ptr->_Mypair._Myval2._Mylast - Ptr->_Mypair._Myval2._Myfirst )
+  {
+    v8 = Platform::Details::Heap::AllocateException(0x68ui64, 0x90ui64);
+    v12 = (const volatile Platform::Object *)Platform::OutOfBoundsException::OutOfBoundsException(v8);
+    v10[0] = (__int64)__abi_winrt_ptr_ctor(v12);
+    CxxThrowException_0(v10, (_ThrowInfo *)&TI11PE_AAVOutOfBoundsException_Platform__);
+  }
+  v5 = (unsigned int)(m_index + 1);
+  this->m_index = v5;
+  *__abi_returnValue = v5 < Ptr->_Mypair._Myval2._Mylast - Ptr->_Mypair._Myval2._Myfirst;
+  return 0i64;
+}
+
+/*
+==============
+?__abi_Windows_Foundation_Collections_?$IVector@I____abi_IndexOf@?Q?$IVector@I@Collections@Foundation@Windows@@?$Vector@IU?$equal_to@I@std@@$00@2Platform@@UE$AAAJIPEAIPEA_N@Z
+==============
+*/
+__int64 ___abi_Windows_Foundation_Collections___IVector_I____abi_IndexOf__Q__IVector_I_Collections_Foundation_Windows____Vector_IU__equal_to_I_std___00_2Platform__UE_AAAJIPEAIPEA_N_Z(Platform::Collections::Vector<unsigned int,std::equal_to<unsigned int>,1> *this, unsigned int __param0, unsigned int *__param1, bool *__abi_returnValue)
+{
+  std::vector<unsigned int> *Ptr; 
+  unsigned int *Myfirst; 
+  unsigned int *Mylast; 
+  unsigned __int64 v8; 
+
+  if ( this->__abi_disposed )
+  {
+    __abi_WinRTraiseObjectDisposedException();
+    __debugbreak();
+  }
+  *__abi_returnValue = 0;
+  *__param1 = 0;
+  Ptr = this->m_vec._Ptr;
+  Myfirst = Ptr->_Mypair._Myval2._Myfirst;
+  Mylast = Ptr->_Mypair._Myval2._Mylast;
+  if ( Ptr->_Mypair._Myval2._Myfirst != Mylast )
+  {
+    do
+    {
+      if ( *Myfirst == __param0 )
+        break;
+      ++Myfirst;
+    }
+    while ( Myfirst != Mylast );
+  }
+  v8 = (unsigned int)(Myfirst - Ptr->_Mypair._Myval2._Myfirst);
+  *__param1 = v8;
+  *__abi_returnValue = v8 < Ptr->_Mypair._Myval2._Mylast - Ptr->_Mypair._Myval2._Myfirst;
+  return 0i64;
+}
+
+/*
+==============
+?__abi_Windows_Foundation_Collections_?$IVectorView@I____abi_IndexOf@?Q?$IVectorView@I@Collections@Foundation@Windows@@?$VectorView@IU?$equal_to@I@std@@$00@2Platform@@UE$AAAJIPEAIPEA_N@Z
+==============
+*/
+__int64 ___abi_Windows_Foundation_Collections___IVectorView_I____abi_IndexOf__Q__IVectorView_I_Collections_Foundation_Windows____VectorView_IU__equal_to_I_std___00_2Platform__UE_AAAJIPEAIPEA_N_Z(Platform::Collections::VectorView<unsigned int,std::equal_to<unsigned int>,1> *this, unsigned int __param0, unsigned int *__param1, bool *__abi_returnValue)
+{
+  std::vector<unsigned int> *Ptr; 
+  unsigned int *Myfirst; 
+  unsigned int *Mylast; 
+  unsigned __int64 v8; 
+  void *Exception; 
+  __int64 pExceptionObject[3]; 
+  const volatile Platform::Object *v12; 
+
+  pExceptionObject[1] = -2i64;
+  if ( this->__abi_disposed )
+  {
+    __abi_WinRTraiseObjectDisposedException();
+    __debugbreak();
+  }
+  *__abi_returnValue = 0;
+  *__param1 = 0;
+  if ( *this->m_ctr._Ptr != this->m_good_ctr )
+  {
+    Exception = Platform::Details::Heap::AllocateException(0x68ui64, 0x90ui64);
+    v12 = (const volatile Platform::Object *)Platform::ChangedStateException::ChangedStateException(Exception);
+    pExceptionObject[0] = (__int64)__abi_winrt_ptr_ctor(v12);
+    CxxThrowException_0(pExceptionObject, (_ThrowInfo *)&TI11PE_AAVChangedStateException_Platform__);
+  }
+  Ptr = this->m_vec._Ptr;
+  Myfirst = Ptr->_Mypair._Myval2._Myfirst;
+  Mylast = Ptr->_Mypair._Myval2._Mylast;
+  if ( Ptr->_Mypair._Myval2._Myfirst != Mylast )
+  {
+    do
+    {
+      if ( *Myfirst == __param0 )
+        break;
+      ++Myfirst;
+    }
+    while ( Myfirst != Mylast );
+  }
+  v8 = (unsigned int)(Myfirst - Ptr->_Mypair._Myval2._Myfirst);
+  *__param1 = v8;
+  *__abi_returnValue = v8 < Ptr->_Mypair._Myval2._Mylast - Ptr->_Mypair._Myval2._Myfirst;
+  return 0i64;
+}
+
+/*
+==============
+std::_Pass_fn<CgClientScoreCompare,0>
+==============
+*/
+std::_Ref_fn<CgClientScoreCompare> std::_Pass_fn<CgClientScoreCompare,0>(CgClientScoreCompare *_Val, const CgGlobalsMP *a2)
+{
+  _Val->cgameGlob = a2;
+  return (std::_Ref_fn<CgClientScoreCompare>)_Val;
+}
+
+/*
+==============
+std::_Ptr_move_cat<float,float>
+==============
+*/
+float *const *std::_Ptr_move_cat<float,float>(float *const *__formal, float *const *a2)
+{
+  *(_BYTE *)__formal = 0;
+  return __formal;
+}
+
+/*
+==============
+?__abi_Windows_Foundation_Collections_?$IIterator@PE$AAVString@Platform@@____abi_MoveNext@?Q?$IIterator@PE$AAVString@Platform@@@Collections@Foundation@Windows@@?$IteratorForVectorView@PE$AAVString@Platform@@@Details@2Platform@@UE$AAAJPEA_N@Z
+==============
+*/
+__int64 ___abi_Windows_Foundation_Collections___IIterator_PE_AAVString_Platform______abi_MoveNext__Q__IIterator_PE_AAVString_Platform___Collections_Foundation_Windows____IteratorForVectorView_PE_AAVString_Platform___Details_2Platform__UE_AAAJPEA_N_Z(Platform::Collections::Details::IteratorForVectorView<Platform::String _> *this, bool *__abi_returnValue)
+{
+  std::vector<Platform::String _> *Ptr; 
+  unsigned __int64 m_index; 
+  unsigned __int64 v5; 
+  void *Exception; 
+  void *v8; 
+  void *pExceptionObject; 
+  __int64 v10[4]; 
+  const volatile Platform::Object *v11; 
+  const volatile Platform::Object *v12; 
+
+  v10[1] = -2i64;
+  if ( this->__abi_disposed )
+  {
+    __abi_WinRTraiseObjectDisposedException();
+    __debugbreak();
+  }
+  *__abi_returnValue = 0;
+  if ( *this->m_ctr._Ptr != this->m_good_ctr )
+  {
+    Exception = Platform::Details::Heap::AllocateException(0x68ui64, 0x90ui64);
+    v11 = (const volatile Platform::Object *)Platform::ChangedStateException::ChangedStateException(Exception);
+    pExceptionObject = __abi_winrt_ptr_ctor(v11);
+    CxxThrowException_0(&pExceptionObject, (_ThrowInfo *)&TI11PE_AAVChangedStateException_Platform__);
+  }
+  Ptr = this->m_vec._Ptr;
+  m_index = this->m_index;
+  if ( m_index >= Ptr->_Mypair._Myval2._Mylast - Ptr->_Mypair._Myval2._Myfirst )
+  {
+    v8 = Platform::Details::Heap::AllocateException(0x68ui64, 0x90ui64);
+    v12 = (const volatile Platform::Object *)Platform::OutOfBoundsException::OutOfBoundsException(v8);
+    v10[0] = (__int64)__abi_winrt_ptr_ctor(v12);
+    CxxThrowException_0(v10, (_ThrowInfo *)&TI11PE_AAVOutOfBoundsException_Platform__);
+  }
+  v5 = (unsigned int)(m_index + 1);
+  this->m_index = v5;
+  *__abi_returnValue = v5 < Ptr->_Mypair._Myval2._Mylast - Ptr->_Mypair._Myval2._Myfirst;
+  return 0i64;
+}
+
+/*
+==============
+std::_Pass_fn<R_RT_Tracking_AllocRecordIndexLess,0>
+==============
+*/
+std::_Ref_fn<R_RT_Tracking_AllocRecordIndexLess> std::_Pass_fn<R_RT_Tracking_AllocRecordIndexLess,0>(R_RT_Tracking_AllocRecordIndexLess *_Val, const R_RT_Tracking_AllocRecord *a2)
+{
+  _Val->m_allocRecords = a2;
+  return (std::_Ref_fn<R_RT_Tracking_AllocRecordIndexLess>)_Val;
+}
+
+/*
+==============
+std::_Pass_fn<R_RT_Tracking_SurfaceRecordIndexLess,0>
+==============
+*/
+std::_Ref_fn<R_RT_Tracking_SurfaceRecordIndexLess> std::_Pass_fn<R_RT_Tracking_SurfaceRecordIndexLess,0>(R_RT_Tracking_SurfaceRecordIndexLess *_Val, const R_RT_Tracking_SurfacePool *a2)
+{
+  _Val->m_surfacePool = a2;
+  return (std::_Ref_fn<R_RT_Tracking_SurfaceRecordIndexLess>)_Val;
+}
+
+/*
+==============
+std::_Ptr_copy_cat<R_RT_Tracking_AllocRecord,R_RT_Tracking_AllocRecord>
+==============
+*/
+R_RT_Tracking_AllocRecord *const *std::_Ptr_copy_cat<R_RT_Tracking_AllocRecord,R_RT_Tracking_AllocRecord>(R_RT_Tracking_AllocRecord *const *__formal, R_RT_Tracking_AllocRecord *const *a2)
+{
+  *(_BYTE *)__formal = 0;
+  return __formal;
+}
+
+/*
+==============
+std::_Ptr_move_cat<EntityNameplate,EntityNameplate>
+==============
+*/
+EntityNameplate *const *std::_Ptr_move_cat<EntityNameplate,EntityNameplate>(EntityNameplate *const *__formal, EntityNameplate *const *a2)
+{
+  *(_BYTE *)__formal = 0;
+  return __formal;
+}
+
+/*
+==============
+std::_Ptr_copy_cat<void *,void *>
+==============
+*/
+void **const *std::_Ptr_copy_cat<void *,void *>(void **const *__formal, void **const *a2)
+{
+  *(_BYTE *)__formal = 0;
+  return __formal;
+}
+
+/*
+==============
+?__abi_Windows_Foundation_Collections_?$IIterator@PE$AAVUser@System@Xbox@Windows@@____abi_MoveNext@?Q?$IIterator@PE$AAVUser@System@Xbox@Windows@@@Collections@Foundation@Windows@@?$IteratorForVectorView@PE$AAVUser@System@Xbox@Windows@@@Details@2Platform@@UE$AAAJPEA_N@Z
+==============
+*/
+__int64 ___abi_Windows_Foundation_Collections___IIterator_PE_AAVUser_System_Xbox_Windows______abi_MoveNext__Q__IIterator_PE_AAVUser_System_Xbox_Windows___Collections_Foundation_Windows____IteratorForVectorView_PE_AAVUser_System_Xbox_Windows___Details_2Platform__UE_AAAJPEA_N_Z(Platform::Collections::Details::IteratorForVectorView<Windows::Xbox::System::User _> *this, bool *__abi_returnValue)
+{
+  std::vector<Windows::Xbox::System::User _> *Ptr; 
+  unsigned __int64 m_index; 
+  unsigned __int64 v5; 
+  void *Exception; 
+  void *v8; 
+  void *pExceptionObject; 
+  __int64 v10[4]; 
+  const volatile Platform::Object *v11; 
+  const volatile Platform::Object *v12; 
+
+  v10[1] = -2i64;
+  if ( this->__abi_disposed )
+  {
+    __abi_WinRTraiseObjectDisposedException();
+    __debugbreak();
+  }
+  *__abi_returnValue = 0;
+  if ( *this->m_ctr._Ptr != this->m_good_ctr )
+  {
+    Exception = Platform::Details::Heap::AllocateException(0x68ui64, 0x90ui64);
+    v11 = (const volatile Platform::Object *)Platform::ChangedStateException::ChangedStateException(Exception);
+    pExceptionObject = __abi_winrt_ptr_ctor(v11);
+    CxxThrowException_0(&pExceptionObject, (_ThrowInfo *)&TI11PE_AAVChangedStateException_Platform__);
+  }
+  Ptr = this->m_vec._Ptr;
+  m_index = this->m_index;
+  if ( m_index >= Ptr->_Mypair._Myval2._Mylast - Ptr->_Mypair._Myval2._Myfirst )
+  {
+    v8 = Platform::Details::Heap::AllocateException(0x68ui64, 0x90ui64);
+    v12 = (const volatile Platform::Object *)Platform::OutOfBoundsException::OutOfBoundsException(v8);
+    v10[0] = (__int64)__abi_winrt_ptr_ctor(v12);
+    CxxThrowException_0(v10, (_ThrowInfo *)&TI11PE_AAVOutOfBoundsException_Platform__);
+  }
+  v5 = (unsigned int)(m_index + 1);
+  this->m_index = v5;
+  *__abi_returnValue = v5 < Ptr->_Mypair._Myval2._Mylast - Ptr->_Mypair._Myval2._Myfirst;
+  return 0i64;
+}
+
+/*
+==============
+?__abi_Windows_Foundation_Collections_?$IIterator@PE$AAVUserAndControllerPair@@____abi_MoveNext@?Q?$IIterator@PE$AAVUserAndControllerPair@@@Collections@Foundation@Windows@@?$IteratorForVectorView@PE$AAVUserAndControllerPair@@@Details@2Platform@@UE$AAAJPEA_N@Z
+==============
+*/
+__int64 ___abi_Windows_Foundation_Collections___IIterator_PE_AAVUserAndControllerPair______abi_MoveNext__Q__IIterator_PE_AAVUserAndControllerPair___Collections_Foundation_Windows____IteratorForVectorView_PE_AAVUserAndControllerPair___Details_2Platform__UE_AAAJPEA_N_Z(Platform::Collections::Details::IteratorForVectorView<UserAndControllerPair _> *this, bool *__abi_returnValue)
+{
+  std::vector<UserAndControllerPair _> *Ptr; 
+  unsigned __int64 m_index; 
+  unsigned __int64 v5; 
+  void *Exception; 
+  void *v8; 
+  void *pExceptionObject; 
+  __int64 v10[4]; 
+  const volatile Platform::Object *v11; 
+  const volatile Platform::Object *v12; 
+
+  v10[1] = -2i64;
+  if ( this->__abi_disposed )
+  {
+    __abi_WinRTraiseObjectDisposedException();
+    __debugbreak();
+  }
+  *__abi_returnValue = 0;
+  if ( *this->m_ctr._Ptr != this->m_good_ctr )
+  {
+    Exception = Platform::Details::Heap::AllocateException(0x68ui64, 0x90ui64);
+    v11 = (const volatile Platform::Object *)Platform::ChangedStateException::ChangedStateException(Exception);
+    pExceptionObject = __abi_winrt_ptr_ctor(v11);
+    CxxThrowException_0(&pExceptionObject, (_ThrowInfo *)&TI11PE_AAVChangedStateException_Platform__);
+  }
+  Ptr = this->m_vec._Ptr;
+  m_index = this->m_index;
+  if ( m_index >= Ptr->_Mypair._Myval2._Mylast - Ptr->_Mypair._Myval2._Myfirst )
+  {
+    v8 = Platform::Details::Heap::AllocateException(0x68ui64, 0x90ui64);
+    v12 = (const volatile Platform::Object *)Platform::OutOfBoundsException::OutOfBoundsException(v8);
+    v10[0] = (__int64)__abi_winrt_ptr_ctor(v12);
+    CxxThrowException_0(v10, (_ThrowInfo *)&TI11PE_AAVOutOfBoundsException_Platform__);
+  }
+  v5 = (unsigned int)(m_index + 1);
+  this->m_index = v5;
+  *__abi_returnValue = v5 < Ptr->_Mypair._Myval2._Mylast - Ptr->_Mypair._Myval2._Myfirst;
+  return 0i64;
+}
+

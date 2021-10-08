@@ -1,0 +1,116 @@
+/*
+==============
+HandleFileEnd
+==============
+*/
+
+int __fastcall HandleFileEnd()
+{
+  return ?HandleFileEnd@@YAHXZ();
+}
+
+/*
+==============
+SetupYYBufferState
+==============
+*/
+
+void SetupYYBufferState(void)
+{
+  ?SetupYYBufferState@@YAXXZ();
+}
+
+/*
+==============
+HandleFileEnd
+==============
+*/
+__int64 HandleFileEnd()
+{
+  int v0; 
+
+  if ( !Scr_EndInline() )
+    return 1i64;
+  v0 = inline_stack_ptr;
+  if ( inline_stack_ptr <= 0 )
+  {
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scr_lex.txt", 107, ASSERT_TYPE_ASSERT, "(inline_stack_ptr > 0)", (const char *)&queryFormat, "inline_stack_ptr > 0") )
+      __debugbreak();
+    v0 = inline_stack_ptr;
+  }
+  inline_stack_ptr = v0 - 1;
+  yy_switch_to_buffer(&inline_stack[v0 - 1]);
+  return 0i64;
+}
+
+/*
+==============
+SetupYYBufferState
+==============
+*/
+void SetupYYBufferState(void)
+{
+  inline_stack[inline_stack_ptr].yy_buf_size = 0x4000;
+  inline_stack[inline_stack_ptr].yy_ch_buf = ch_buf[inline_stack_ptr];
+  inline_stack[inline_stack_ptr].yy_is_our_buffer = 0;
+  yy_init_buffer(&inline_stack[inline_stack_ptr], NULL);
+}
+
+/*
+==============
+StringValue
+==============
+*/
+__int64 StringValue(char *str, int len)
+{
+  char *i; 
+  char v4; 
+  char v5; 
+  unsigned int v6; 
+  char stra[8192]; 
+
+  if ( len < 0x2000 )
+  {
+    for ( i = stra; len; ++str )
+    {
+      --len;
+      if ( *str == 92 )
+      {
+        if ( !len )
+          break;
+        v4 = *++str;
+        if ( v4 == 110 )
+        {
+          v5 = 10;
+        }
+        else if ( v4 == 114 )
+        {
+          v5 = 13;
+        }
+        else
+        {
+          v5 = 9;
+          if ( v4 != 116 )
+            v5 = v4;
+        }
+        *i = v5;
+        --len;
+      }
+      else
+      {
+        *i = *str;
+      }
+      ++i;
+    }
+    v6 = g_parse_user;
+    *i = 0;
+    yylval.val.type = j_SL_GetString_(stra, v6, 16);
+    return 1i64;
+  }
+  else
+  {
+    CompileError(g_pScrCompileContext, g_sourcePos, "max string length exceeded: \"%s\"", str);
+    return 0i64;
+  }
+}
+
